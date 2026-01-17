@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>zghtlkez</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- QRCode JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #000000; 
+            color: #ffffff;
+            overflow: hidden; 
+            height: 100vh;
+            height: 100dvh;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        #root {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        input, button { outline: none; }
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Glass/Card Effects */
+        .card-bg {
+            background-color: #0a0a0a;
+            border: 1px solid #333;
+        }
+        
+        /* Navigation Bar */
+        .nav-glass {
+            background: #000000;
+            border-top: 1px solid #222;
+        }
+        
+        /* Menu Button (Center) */
+        .menu-btn-wrapper {
+            position: absolute;
+            top: 8px; 
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: transparent; 
+            border-radius: 50%;
+            padding: 0;
+            z-index: 50;
+        }
+        .menu-btn-inner {
+            background-color: #dc2626; 
+            width: 40px; 
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+            border: 2px solid #000000;
+        }
+
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Pop Up Animation */
+        .animate-pop-up { animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popUp { 
+            0% { opacity: 0; transform: scale(0.5); } 
+            100% { opacity: 1; transform: scale(1); } 
+        }
+
+        /* Success Confetti Animation */
+        @keyframes celebrate {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-celebrate { animation: celebrate 0.5s ease-out; }
+
+        /* Lighting/Disco Animation for Combo */
+        @keyframes disco-flash {
+            0% { box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700 inset; border-color: #FFD700; }
+            50% { box-shadow: 0 0 25px #FFFF00, 0 0 50px #FFFF00 inset; border-color: #FFFF00; }
+            100% { box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700 inset; border-color: #FFD700; }
+        }
+        .animate-disco { animation: disco-flash 1.5s linear infinite; }
+
+        /* Marquee Animation */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
+
+        /* Bottom Nav Text Alignment */
+        .nav-item-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end; 
+            height: 100%;
+            padding-bottom: 12px; 
+            position: relative;
+        }
+        
+        .nav-icon-box {
+            height: 26px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+
+        .nav-text {
+            font-size: 10px;
+            line-height: 1;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .combo-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .combo-modal-content { background: #fff; width: 100%; max-width: 360px; padding: 0; border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 0 40px rgba(255, 255, 255, 0.1); position: relative; }
+        
+        .toast-msg { visibility: hidden; min-width: 250px; background-color: #22c55e; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 3000; left: 50%; transform: translateX(-50%); bottom: 100px; font-size: 14px; border: 2px solid #fff; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .toast-msg.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 5.5s; }
+        
+        /* Standard Loader */
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #dc2626; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Double Ring Loader */
+        .double-ring-loader { position: relative; width: 64px; height: 64px; }
+        .double-ring-loader div { box-sizing: border-box; display: block; position: absolute; width: 50px; height: 50px; margin: 8px; border: 6px solid #dc2626; border-radius: 50%; animation: double-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite; border-color: #dc2626 transparent transparent transparent; }
+        .double-ring-loader div:nth-child(1) { animation-delay: -0.45s; }
+        .double-ring-loader div:nth-child(2) { animation-delay: -0.3s; }
+        .double-ring-loader div:nth-child(3) { animation-delay: -0.15s; }
+        @keyframes double-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .close-btn { position: absolute; top: 10px; right: 10px; background: #eee; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #ccc; z-index: 20; color: #333; }
+
+        /* Admin Styles */
+        .admin-tab { padding: 10px; cursor: pointer; border-bottom: 2px solid transparent; color: #666; font-weight: bold; flex: 1; text-align: center; }
+        .admin-tab.active { border-bottom: 2px solid #dc2626; color: #dc2626; }
+        .user-row { background: #111; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #333; }
+        
+        /* Input Box Style for Wallet - COMPACT MODE */
+        .wallet-input-group { margin-bottom: 8px; }
+        .wallet-input-label { color: #4b5563; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; margin-left: 4px; display: block; }
+        .wallet-input { width: 100%; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; color: #000000; font-size: 13px; transition: all 0.2s; }
+        .wallet-input:focus { border-color: #dc2626; }
+
+        /* Expert Income Specific */
+        .expert-income-text {
+            color: #f97316; /* Orange-500 */
+            font-size: 14px; 
+            font-weight: 900;
+        }
+        
+        /* Text Stretching Class */
+        .text-stretch {
+            display: inline-block;
+            transform: scaleY(1.3);
+            transform-origin: bottom;
+        }
+
+        /* Combo Card Specific Styles */
+        .combo-yellow-gradient {
+            background: linear-gradient(180deg, #FFD700 0%, #FFFACD 100%);
+        }
+        .combo-glow {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root">
+        <!-- Pre-loader to show while React loads -->
+        <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background-color:#000; color:#fff;">
+            <div class="double-ring-loader"><div></div><div></div><div></div><div></div></div>
+            <p style="margin-top:20px; font-family:'Inter',sans-serif; font-size:14px; color:#dc2626; font-weight:bold;">LOADING...</p>
+        </div>
+    </div>
+
+    <script type="text/babel">
+        // --- SAFEGUARD ---
+        window.onerror = function(msg, url, line, col, error) {
+            console.error("App Crash Detected:", msg);
+        };
+
+        // --- FIREBASE INITIALIZATION ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyA5qD4YVS2P15yWR8A1TuscMfJwVyKjhAY",
+          authDomain: "vipmall-admin.firebaseapp.com",
+          databaseURL: "https://vipmall-admin-default-rtdb.firebaseio.com",
+          projectId: "vipmall-admin",
+          storageBucket: "vipmall-admin.firebasestorage.app",
+          messagingSenderId: "527235469320",
+          appId: "1:527235469320:web:7c2101ded3b4bc6f2881bd",
+          measurementId: "G-9K5FK1E9GX"
+        };
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        const { useState, useEffect, useRef, useCallback, useLayoutEffect } = React;
+
+        // --- TRANSLATION SYSTEM ---
+        const TRANSLATIONS = {
+            'en': {
+                home: "Home", service: "Service", menu: "Menu", record: "Record", mine: "Mine",
+                withdraw: "Withdraw", deposit: "Deposit", my_team: "My Team", wallet: "Wallet Management",
+                invite: "Invite Friends", financial: "Financial", profile: "Profile",
+                settings: "Settings", language: "Language", balance: "My Account", 
+                order_time: "Order Time", product_order: "Product order", commission: "Commission",
+                expert_income: "Expert Income", submit: "Submit Order", task_complete: "Task Complete!",
+                recharge_msg: "INSUFFICIENT BALANCE", avail_bal: "Available",
+                service_title: "Customer Support", online: "Online", live: "Live", type_msg: "Type message...",
+                home_marquee: "Welcome to zghtlkez Online Earning Platform",
+                username: "Username", invite_code: "Invite Code", fund_pass: "Fund Password",
+                wallet_name: "Wallet Name", network: "Network", wallet_addr: "Wallet Address",
+                submit_ok: "Bind Wallet", bind_wallet: "Bind Wallet",
+                total_dep: "Tot Deposit", total_with: "Tot Withdraw", total_comm: "Tot Commission", total_bonus: "Tot Bonus",
+                submit_orders: "SUBMIT ALL ORDERS", pending: "Pending", success: "Success", rejected: "Rejected",
+                dep_record: "Deposit Record", with_record: "Withdraw Record", about_us: "About Platform",
+                tasks_title: "Tasks", completed_stamp: "COMPLETED", working: "Processing...",
+                home_1_t: "Financial Freedom", home_1_d: "Achieve financial independence rapidly by working with our elite platform.",
+                home_2_t: "Platform Rules", home_2_d: "Strict compliance required. Zero tolerance for fraud; severe penalties apply.",
+                home_3_t: "VIP Benefits", home_3_d: "Exclusive rewards for top-tier members.",
+                home_4_t: "Global Partners", home_4_d: "Working with top brands worldwide."
+            },
+            'tr': { home: "Ana Sayfa", service: "Servis", menu: "Menü", record: "Kayıt", mine: "Benim", withdraw: "Çekim", deposit: "Yatırım", my_team: "Takımım", wallet: "Cüzdan Yönetimi", invite: "Davet Et", financial: "Finansal", profile: "Profil", settings: "Ayarlar", language: "Dil", balance: "Hesabım", order_time: "Sipariş Zamanı", product_order: "Ürün Fiyatı", commission: "Komisyon", expert_income: "Uzman Geliri", submit: "Gönder", task_complete: "Tamamlandı!", recharge_msg: "YETERSİZ BAKİYE", avail_bal: "Mevcut", service_title: "Müşteri Hizmetleri", online: "Çevrimiçi", live: "Canlı", type_msg: "Mesaj yaz...", home_marquee: "zghtlkez Online Kazanç Platformuna Hoşgeldiniz", username: "Kullanıcı Adı", invite_code: "Davet Kodu", fund_pass: "Fon Şifresi", wallet_name: "Cüzdan Adı", network: "Ağ", wallet_addr: "Cüzdan Adresi", submit_ok: "Bağla", bind_wallet: "Cüzdan Bağla", total_dep: "Top. Yatırım", total_with: "Top. Çekim", total_comm: "Top. Komisyon", total_bonus: "Top. Bonus", submit_orders: "TÜM SİPARİŞLERİ GÖNDER", pending: "Bekliyor", success: "Başarılı", rejected: "Reddedildi", dep_record: "Yatırım Kaydı", with_record: "Çekim Kaydı", about_us: "Hakkımızda", tasks_title: "Görevler", completed_stamp: "TAMAMLANDI", working: "İşleniyor..." },
+            'ar': { home: "الرئيسية", service: "خدمة", menu: "قائمة", record: "سجل", mine: "ملفي", withdraw: "سحب", deposit: "إيداع", my_team: "فريقي", wallet: "إدارة المحفظة", invite: "دعوة", financial: "مالية", profile: "الملف", settings: "إعدادات", language: "لغة", balance: "رصيدي", order_time: "وقت الطلب", product_order: "سعر الطلب", commission: "عمولة", expert_income: "دخل الخبير", submit: "إرسال", task_complete: "اكتمل!", recharge_msg: "رصيد غير كاف", avail_bal: "متاح", service_title: "دعم العملاء", online: "متصل", live: "مباشر", type_msg: "اكتب رسالة...", home_marquee: "مرحبا بكم في منصة zghtlkez", username: "اسم المستخدم", invite_code: "كود الدعوة", fund_pass: "كلمة المرور", wallet_name: "اسم المحفظة", network: "شبكة", wallet_addr: "عنوان المحفظة", submit_ok: "ربط", bind_wallet: "ربط المحفظة", total_dep: "إجمالي الإيداع", total_with: "إجمالي السحب", total_comm: "إجمالي العمولة", total_bonus: "إجمالي المكافأة", submit_orders: "إرسال جميع الطلبات", pending: "قيد الانتظار", success: "ناجح", rejected: "مرفوض", dep_record: "سجل الإيداع", with_record: "سجل السحب", about_us: "من نحن", tasks_title: "المهام", completed_stamp: "مكتمل", working: "جار المعالجة..." },
+            'hi': { home: "होम", service: "सेवा", menu: "मेनू", record: "रिकॉर्ड", mine: "मेरा", withdraw: "निकासी", deposit: "जमा", my_team: "मेरी टीम", wallet: "वॉलेट प्रबंधन", invite: "आमंत्रित", financial: "वित्तीय", profile: "प्रोफाइल", settings: "सेटिंग्स", language: "भाषा", balance: "मेरा खाता", order_time: "ऑर्डर समय", product_order: "उत्पाद मूल्य", commission: "कमीशन", expert_income: "विशेषज्ञ आय", submit: "जमा करें", task_complete: "कार्य पूर्ण!", recharge_msg: "अपर्याप्त शेष", avail_bal: "उपलब्ध", service_title: "ग्राहक सेवा", online: "ऑनलाइन", live: "लाइव", type_msg: "संदेश लिखें...", home_marquee: "zghtlkez में आपका स्वागत है", username: "उपयोगकर्ता", invite_code: "आमंत्रण कोड", fund_pass: "फंड पासवर्ड", wallet_name: "वॉलेट नाम", network: "नेटवर्क", wallet_addr: "वॉलेट पता", submit_ok: "बाध्य करें", bind_wallet: "वॉलेट जोड़ें", total_dep: "कुल जमा", total_with: "कुल निकासी", total_comm: "कुल कमीशन", total_bonus: "कुल बोनस", submit_orders: "सभी ऑर्डर जमा करें", pending: "लंबित", success: "सफल", rejected: "अस्वीकृत", dep_record: "जमा रिकॉर्ड", विद_record: "निकासी रिकॉर्ड", about_us: "हमारे बारे में", tasks_title: "कार्य", completed_stamp: "पूर्ण", working: "प्रक्रिया..." },
+            'ur': { home: "ہوم", service: "سروس", menu: "مینو", record: "ریکارڈ", mine: "میرا", withdraw: "نکالنا", deposit: "جمع", my_team: "میری ٹیم", wallet: "پرس کا انتظام", invite: "دعوت", financial: "مالیاتی", profile: "پروفائل", settings: "ترتیبات", language: "زبان", balance: "بیلنس", order_time: "آرڈر کا وقت", product_order: "آرڈر قیمت", commission: "کمیشن", expert_income: "آمدنی", submit: "جمع کریں", task_complete: "مکمل!", recharge_msg: "نا کافی بیلنس", avail_bal: "دستیاب", service_title: "کسٹمر سپورٹ", online: "آن لائن", live: "لائیو", type_msg: "پیغام...", home_marquee: "zghtlkez میں خوش آمدید", username: "نام", invite_code: "کوڈ", fund_pass: "پاس ورڈ", wallet_name: "پرس کا نام", network: "نیٹ ورک", wallet_addr: "ایڈریس", submit_ok: "باندھ لیں", bind_wallet: "پرس جوڑیں", total_dep: "کل جمع", total_with: "کل نکالنا", total_comm: "کل کمیشن", total_bonus: "کل بونس", submit_orders: "سب جمع کریں", pending: "زیر التواء", success: "کامیاب", rejected: "مسترد", dep_record: "جمع ریکارڈ", with_record: "نکالنے کا ریکارڈ", about_us: "ہمارے بارے میں", tasks_title: "کام", completed_stamp: "مکمل", working: "کام جاری..." },
+            'id': { home: "Beranda", service: "Layanan", menu: "Menu", record: "Catatan", mine: "Saya", withdraw: "Penarikan", deposit: "Setoran", my_team: "Tim Saya", wallet: "Manajemen Dompet", invite: "Undang", financial: "Keuangan", profile: "Profil", settings: "Pengaturan", language: "Bahasa", balance: "Akun Saya", order_time: "Waktu", product_order: "Harga", commission: "Komisi", expert_income: "Pendapatan", submit: "Kirim", task_complete: "Selesai!", recharge_msg: "SALDO TIDAK CUKUP", avail_bal: "Tersedia", service_title: "Layanan Pelanggan", online: "Online", live: "Live", type_msg: "Ketik pesan...", home_marquee: "Selamat Datang di zghtlkez", username: "Nama Pengguna", invite_code: "Kode Undangan", fund_pass: "Kata Sandi", wallet_name: "Nama Dompet", network: "Jaringan", wallet_addr: "Alamat", submit_ok: "Ikat", bind_wallet: "Ikat Dompet", total_dep: "Tot Setoran", total_with: "Tot Penarikan", total_comm: "Tot Komisi", total_bonus: "Tot Bonus", submit_orders: "KIRIM SEMUA PESANAN", pending: "Tertunda", success: "Sukses", rejected: "Ditolak", dep_record: "Catatan Setoran", with_record: "Catatan Penarikan", about_us: "Tentang Kami", tasks_title: "Tugas", completed_stamp: "SELESAI", working: "Memproses..." }
+        };
+        
+        const getText = (lang, key) => {
+            let code = 'en';
+            if (lang) {
+                if (lang.includes('Turkey') || lang.includes('Türkçe')) code = 'tr';
+                else if (lang.includes('Arabic') || lang.includes('Iraq') || lang.includes('Jordan') || lang.includes('Egypt') || lang.includes('Palestine') || lang.includes('Saudi') || lang.includes('Qatar') || lang.includes('Oman') || lang.includes('Kuwait') || lang.includes('Sudan') || lang.includes('Morocco') || lang.includes('Dubai')) code = 'ar';
+                else if (lang.includes('Hindi') || lang.includes('India')) code = 'hi';
+                else if (lang.includes('Urdu') || lang.includes('Pakistan') || lang.includes('Afghanistan')) code = 'ur';
+                else if (lang.includes('Indonesian') || lang.includes('Malay')) code = 'id';
+                else if (lang.includes('Persian') || lang.includes('Iran')) code = 'ar';
+                else if (lang.includes('Nepal')) code = 'hi';
+                else if (lang.includes('Sinhala')) code = 'en';
+            }
+            return (TRANSLATIONS[code] && TRANSLATIONS[code][key]) || TRANSLATIONS['en'][key] || key;
+        };
+        
+        // --- INLINE ICONS ---
+        const Icon = ({ path, size = 24, className = "", fill = "none", stroke="currentColor", onClick, strokeWidth=2 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className} onClick={onClick}>
+                {path}
+            </svg>
+        );
+
+        // General Icons
+        const X = (p) => <Icon {...p} path={<path d="M18 6 6 18M6 6l12 12"/>} />;
+        const ChevronLeft = (p) => <Icon {...p} path={<path d="m15 18-6-6 6-6"/>} />;
+        const ChevronRight = (p) => <Icon {...p} path={<path d="m9 18 6-6-6-6"/>} />;
+        const Copy = (p) => <Icon {...p} path={<React.Fragment><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></React.Fragment>} />;
+        const Check = (p) => <Icon {...p} path={<polyline points="20 6 9 17 4 12" />} />;
+        const Share2 = (p) => <Icon {...p} path={<React.Fragment><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></React.Fragment>} />;
+        const Send = (p) => <Icon {...p} path={<React.Fragment><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></React.Fragment>} />;
+        const ImageBtn = (p) => <Icon {...p} path={<React.Fragment><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></React.Fragment>} />;
+        
+        // --- FIXED CAMERA ICON FOR REPLACEMENT ---
+        const Camera = (p) => <Icon {...p} path={<React.Fragment><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></React.Fragment>} />;
+        
+        const Globe = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></React.Fragment>} />;
+        const Download = (p) => <Icon {...p} path={<React.Fragment><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></React.Fragment>} />;
+        const Trash2 = (p) => <Icon {...p} path={<React.Fragment><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></React.Fragment>} />;
+
+        // Tab Icons
+        const HomeIcon = (p) => <Icon {...p} path={<React.Fragment><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></React.Fragment>} />;
+        const ServiceIcon = (p) => <Icon {...p} path={<React.Fragment><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></React.Fragment>} />;
+        const ShoppingBagIcon = (p) => <Icon {...p} path={<React.Fragment><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></React.Fragment>} />;
+        const RecordIcon = (p) => <Icon {...p} path={<React.Fragment><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></React.Fragment>} />;
+        const MineIcon = (p) => <Icon {...p} path={<React.Fragment><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></React.Fragment>} />;
+
+        // Mine/Wallet Icons
+        const Wallet = (p) => <Icon {...p} path={<React.Fragment><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></React.Fragment>} />;
+        const CreditCard = (p) => <Icon {...p} path={<React.Fragment><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></React.Fragment>} />;
+        const Users = (p) => <Icon {...p} path={<React.Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></React.Fragment>} />;
+        const UserPlus = (p) => <Icon {...p} path={<React.Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" x2="20" y1="8" y2="14"/><line x1="23" x2="17" y1="11" y2="11"/></React.Fragment>} />;
+        const Lock = (p) => <Icon {...p} path={<React.Fragment><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></React.Fragment>} />;
+        const User = (p) => <Icon {...p} path={<React.Fragment><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></React.Fragment>} />;
+        
+        const Settings = (p) => <Icon {...p} path={<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.72l-.15.1a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>} />;
+        const FileText = (p) => <Icon {...p} path={<React.Fragment><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></React.Fragment>} />;
+        const ClipboardList = (p) => <Icon {...p} path={<React.Fragment><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></React.Fragment>} />;
+        const History = (p) => <Icon {...p} path={<React.Fragment><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></React.Fragment>} />;
+
+        const MessageCircle = (p) => <Icon {...p} path={<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>} />;
+        const ShoppingBag = (p) => <Icon {...p} path={<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z M3 6h18 M16 10a4 4 0 0 1-8 0"/>} />;
+        
+        const HelpCircle = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></React.Fragment>} />;
+        const Clock = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></React.Fragment>} />;
+        const Repeat = (p) => <Icon {...p} path={<React.Fragment><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></React.Fragment>} />;
+        const CheckCircle = (p) => <Icon {...p} path={<React.Fragment><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></React.Fragment>} />;
+        const TrendingUp = (p) => <Icon {...p} path={<polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />} />;
+        const TrendingDown = (p) => <Icon {...p} path={<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />} />;
+        const Info = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></React.Fragment>} />;
+        const Bell = (p) => <Icon {...p} path={<React.Fragment><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></React.Fragment>} />;
+        const Edit2 = (p) => <Icon {...p} path={<React.Fragment><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></React.Fragment>} />;
+
+        // --- Constants & Data ---
+        // Fallback data if Firebase is empty. Added more items to prevent combo infinite loop
+        const DEFAULT_PRODUCTS_DATA = {
+            'Amazon': [
+                {n: "Apple iPhone 15 Pro Max 256GB Titanium", i: "https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "MacBook Pro M3 Chip Laptop 14-inch", i: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "Canon EOS R5 DSLR Camera Body", i: "https://images.pexels.com/photos/51383/photo-camera-subject-photographer-51383.jpeg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "Sony WH-1000XM5 Wireless Headphones", i: "https://images.pexels.com/photos/3394656/pexels-photo-3394656.jpeg?auto=compress&cs=tinysrgb&w=600"}
+            ],
+            'Alibaba': [
+                {n: "Carbon Fiber Mountain Bike Shimono Gears", i: "https://images.pexels.com/photos/100582/pexels-photo-100582.jpeg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "Daily Healthcare Multi-Vitamins Pack", i: "https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "Industrial 3D Printer High Precision", i: "https://images.pexels.com/photos/8989442/pexels-photo-8989442.jpeg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "Smart Home Security System Kit", i: "https://images.pexels.com/photos/279810/pexels-photo-279810.jpeg?auto=compress&cs=tinysrgb&w=600"}
+            ],
+            'AliExpress': [
+                {n: "Genuine Leather Wallet RFID Blocking", i: "https://images.pexels.com/photos/928221/pexels-photo-928221.jpeg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "Designer Luxury Leather Handbag Tote", i: "https://images.pexels.com/photos/2905238/pexels-photo-2905238.jpeg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "Men's Classic Mechanical Watch", i: "https://images.pexels.com/photos/277390/pexels-photo-277390.jpeg?auto=compress&cs=tinysrgb&w=600"},
+                {n: "Retro Polarized Sunglasses UV400", i: "https://images.pexels.com/photos/46710/pexels-photo-46710.jpeg?auto=compress&cs=tinysrgb&w=600"}
+            ]
+        };
+
+        const LOGO_URLS = {
+            amazon: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
+            alibaba: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Alibaba_Group_logo.svg/1024px-Alibaba_Group_logo.svg.png",
+            aliexpress: "https://upload.wikimedia.org/wikipedia/en/thumb/7/78/AliExpress_logo.svg/1200px-AliExpress_logo.svg.png"
+        };
+
+        const WITHDRAWS_STATIC = Array(10).fill({ id: 'static', amount: '100.00', status: 'Success', date: '2023-10-27 14:30', type: 'USDT' });
+        const DEPOSITS_STATIC = Array(10).fill({ id: 'static', amount: '0.00', status: 'Success', date: '2023-10-27', type: 'System' });
+
+        // --- Helper: Copy to Clipboard (Robust) ---
+        const copyText = (text, onSuccess) => {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(onSuccess).catch(err => manualCopy(text, onSuccess));
+            } else {
+                manualCopy(text, onSuccess);
+            }
+        };
+        const manualCopy = (text, onSuccess) => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                onSuccess();
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+            }
+            document.body.removeChild(ta);
+        };
+
+        // --- HELPER COMPONENT FOR ONE-TIME LOGO SETUP ---
+        // MODIFIED: Removes camera icon fallback. Shows empty bg if no image.
+        const OneTimeLogoButton = ({ storageKey, adminKey, appSettings, customImages, onUpdate, onNavigate, className, children }) => {
+            const fileInputRef = useRef(null);
+            
+            // Priority: Admin > Local > Null
+            const activeImage = appSettings[adminKey] || customImages[storageKey];
+
+            const handleClick = (e) => {
+                e.stopPropagation();
+                if (activeImage && onNavigate) {
+                    onNavigate();
+                } else {
+                    if(fileInputRef.current) fileInputRef.current.click();
+                }
+            };
+
+            const handleFile = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        onUpdate(storageKey, reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            return (
+                <div onClick={handleClick} className={`relative cursor-pointer ${className}`}>
+                    <input type="file" ref={fileInputRef} onChange={handleFile} style={{display:'none'}} accept="image/*" />
+                    {activeImage ? (
+                        <img src={activeImage} className="w-full h-full object-contain rounded-lg" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-transparent rounded-lg">
+                            {children}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- Auth Component ---
+        const AuthView = ({ onLogin, appSettings, customImages, onUpdateImage }) => {
+            const [isRegister, setIsRegister] = useState(false);
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [confirmPass, setConfirmPass] = useState('');
+            const [inviteCode, setInviteCode] = useState('');
+            const [verifyCode, setVerifyCode] = useState('');
+            const [generatedCaptcha, setGeneratedCaptcha] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            useEffect(() => {
+                generateCaptcha();
+                
+                // AUTO FILL INVITE CODE FROM URL
+                const params = new URLSearchParams(window.location.search);
+                const code = params.get('code');
+                if (code) {
+                    setIsRegister(true);
+                    setInviteCode(code);
+                }
+                
+                // PRE-FILL FORM BUT DO NOT AUTO LOGIN
+                const savedSession = localStorage.getItem('vip_user_session');
+                if (savedSession) {
+                    try {
+                        const parsed = JSON.parse(savedSession);
+                        if(parsed.username) setUsername(parsed.username);
+                    } catch(e){}
+                }
+            }, []);
+
+            const generateCaptcha = () => {
+                const code = Math.floor(1000 + Math.random() * 9000).toString();
+                setGeneratedCaptcha(code);
+            };
+
+            const handleSubmit = async () => {
+                // Admin Login Bypass
+                if (username === 'admin' && password === 'admin123') { 
+                    onLogin({ username: 'admin', isAdmin: true }); 
+                    return; 
+                }
+
+                // Captcha Check
+                if (verifyCode !== generatedCaptcha) {
+                    alert("Invalid Verification Code!");
+                    generateCaptcha();
+                    return;
+                }
+
+                // Basic Validation
+                if (!username || !password) {
+                    alert("Please fill all fields");
+                    return;
+                }
+                
+                // Only require invite code for registration flow
+                // But since we are allowing Smart Login (existing users on register screen),
+                // we should allow invite code to be missing if the user actually exists.
+                // However, for UX simplicity, let's keep the invite code field requirement
+                // ONLY if the user is explicitly trying to Register a NEW account. 
+                // But since we can't know that yet without querying DB, we rely on the DB check below.
+                
+                if (isRegister && !inviteCode) {
+                     // Check if invite code is missing on register screen
+                     // We will allow it to pass here, and let the backend check decide.
+                     // Actually, invite code is mandatory for new users. 
+                     // But for existing users logging in via register screen, it's irrelevant.
+                     // Let's enforce it visually but handle logic inside.
+                     // The user said "invite code automatically generated", so it should be there.
+                     alert("Please enter Invite Code");
+                     return;
+                }
+
+                if (isRegister && password !== confirmPass) {
+                    alert("Passwords do not match!");
+                    return;
+                }
+
+                setLoading(true);
+
+                const cleanUsername = username.trim();
+                const userRef = db.ref('users/' + cleanUsername);
+                
+                try {
+                    const snapshot = await userRef.once('value');
+                    const exists = snapshot.exists();
+                    const dbData = snapshot.val();
+
+                    if (isRegister) {
+                        if (exists) {
+                            // SMART LOGIN: If user exists, check password.
+                            // If password matches, just log them in (don't block with 'User exists').
+                            if (dbData.password === password) {
+                                setTimeout(() => {
+                                    setLoading(false);
+                                    onLogin({ username: dbData.username, inviteCode: dbData.inviteCode, isAdmin: false });
+                                }, 1000);
+                                return;
+                            } else {
+                                // User exists, password mismatch
+                                alert("User already exists! Please check your password or Login.");
+                                setLoading(false);
+                                return;
+                            }
+                        }
+                        // Create new user in DB
+                        const newUser = {
+                            username: cleanUsername,
+                            password,
+                            inviteCode,
+                            balance: '0.00',
+                            level: 'VIP 1',
+                            completedCount: 0,
+                            createdAt: new Date().toISOString()
+                        };
+                        await userRef.set(newUser);
+                        // Auto login after register
+                        setTimeout(() => {
+                            setLoading(false);
+                            onLogin({ username: newUser.username, inviteCode: newUser.inviteCode, isAdmin: false });
+                        }, 1000);
+                    } else {
+                        // Login Logic
+                        if (!exists) {
+                            alert("User does not exist! Please Register.");
+                            setLoading(false);
+                            return;
+                        }
+                        // Strict Password Check
+                        if (dbData.password !== password) {
+                            alert("Incorrect Password!");
+                            setLoading(false);
+                            return;
+                        }
+                        
+                        // Success Login
+                        setTimeout(() => {
+                            setLoading(false);
+                            onLogin({ username: dbData.username, inviteCode: dbData.inviteCode, isAdmin: false });
+                        }, 1000);
+                    }
+                } catch (e) {
+                    console.error("Firebase Error", e);
+                    alert("Network Error. Please try again.");
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-black flex flex-col justify-center px-6 animate-fade-in">
+                    <div className="flex justify-center mb-8">
+                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-red-600 to-black border-2 border-red-600 flex items-center justify-center shadow-[0_0_25px_rgba(220,38,38,0.4)] overflow-hidden">
+                             <OneTimeLogoButton 
+                                storageKey="vip_main_app_logo" 
+                                adminKey="logo_main"
+                                appSettings={appSettings}
+                                customImages={customImages}
+                                onUpdate={onUpdateImage}
+                                className="w-full h-full"
+                            >
+                                <ShoppingBagIcon size={48} className="text-white" />
+                            </OneTimeLogoButton>
+                        </div>
+                    </div>
+                    <h2 className="text-3xl font-bold text-white text-center mb-2">{appSettings.title || 'VIP Mall'}</h2>
+                    <p className="text-gray-500 text-center mb-8 text-sm">{isRegister ? "Create your account" : "Welcome back"}</p>
+
+                    <div className="space-y-4">
+                        <div className="bg-[#111] border border-[#333] rounded-xl p-3 flex items-center">
+                            <User size={20} className="text-gray-500 mr-3" />
+                            <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} className="bg-transparent w-full text-white placeholder-gray-600 text-sm"/>
+                        </div>
+                        
+                        <div className="bg-[#111] border border-[#333] rounded-xl p-3 flex items-center">
+                            <UserPlus size={20} className="text-gray-500 mr-3" />
+                            <input type="text" placeholder="Invite Code" value={inviteCode} onChange={e => setInviteCode(e.target.value)} className="bg-transparent w-full text-white placeholder-gray-600 text-sm"/>
+                        </div>
+
+                        <div className="bg-[#111] border border-[#333] rounded-xl p-3 flex items-center">
+                            <Lock size={20} className="text-gray-500 mr-3" />
+                            <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="bg-transparent w-full text-white placeholder-gray-600 text-sm"/>
+                        </div>
+
+                        {isRegister && (
+                            <div className="bg-[#111] border border-[#333] rounded-xl p-3 flex items-center">
+                                <Lock size={20} className="text-gray-500 mr-3" />
+                                <input type="password" placeholder="Confirm Password" value={confirmPass} onChange={e => setConfirmPass(e.target.value)} className="bg-transparent w-full text-white placeholder-gray-600 text-sm"/>
+                            </div>
+                        )}
+
+                        <div className="flex gap-2">
+                            <div className="bg-[#111] border border-[#333] rounded-xl p-3 flex items-center flex-1">
+                                <CheckCircle size={20} className="text-gray-500 mr-3" />
+                                <input type="text" placeholder="Verify Code" value={verifyCode} onChange={e => setVerifyCode(e.target.value)} className="bg-transparent w-full text-white placeholder-gray-600 text-sm"/>
+                            </div>
+                            <div onClick={generateCaptcha} className="bg-white rounded-xl w-24 flex items-center justify-center cursor-pointer select-none border-2 border-red-600">
+                                <span className="text-black font-black text-xl font-mono tracking-widest" style={{transform: 'rotate(-5deg)'}}>{generatedCaptcha}</span>
+                            </div>
+                        </div>
+
+                        <button onClick={handleSubmit} disabled={loading} className="w-full py-4 bg-red-600 rounded-xl text-white font-bold shadow-lg active:scale-95 transition-transform mt-4 flex items-center justify-center">
+                            {loading ? <div className="loader"></div> : (isRegister ? "Register Now" : "Login")}
+                        </button>
+                        
+                        <div className="flex justify-center mt-4">
+                            <button onClick={() => setIsRegister(!isRegister)} className="text-gray-500 text-sm hover:text-white transition-colors">
+                                {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AdminDashboard = ({ onLogout }) => {
+            return (
+                <div className="h-full flex items-center justify-center bg-black">
+                    <div className="text-center">
+                        <h1 className="text-2xl font-bold text-white mb-2">Admin Panel Active</h1>
+                        <p className="text-gray-500 mb-4">Please access via separate Admin URL.</p>
+                        <button onClick={onLogout} className="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
+                    </div>
+                </div>
+            )
+        };
+
+        // --- Shared Components ---
+        const PageLoader = () => (
+            <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-fade-in">
+                <div className="double-ring-loader"><div></div><div></div><div></div><div></div></div>
+            </div>
+        );
+
+        const RealQRCode = ({ value, size = 128 }) => {
+            const containerRef = useRef(null);
+            useEffect(() => {
+                if (containerRef.current && window.QRCode) {
+                    containerRef.current.innerHTML = "";
+                    try {
+                        new QRCode(containerRef.current, {
+                            text: value,
+                            width: size,
+                            height: size,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+                    } catch(e) { console.error("QR Error", e); }
+                }
+            }, [value, size]);
+            return <div ref={containerRef} className="bg-white p-2 rounded-lg inline-block"></div>;
+        };
+
+        const SubPageHeader = ({ title, onBack }) => (
+            <div className="flex items-center p-4 bg-black sticky top-0 z-50 border-b border-[#222]">
+                <button onClick={onBack} className="p-1 active:opacity-70"><ChevronLeft size={24} className="text-white" /></button>
+                <h1 className="text-lg font-bold ml-4 text-white">{title}</h1>
+            </div>
+        );
+
+        const DepositView = ({ onBack }) => {
+            const [copied, setCopied] = useState(false);
+            const address = "TVG7Dunhtjw2g4wPgcEDVhRykoUFiSRKb2";
+
+            const handleCopy = () => {
+                copyText(address, () => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                });
+            };
+            
+            const handleSave = () => {
+                handleCopy();
+                alert("Address Copied! Please save it in your wallet.");
+            };
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <div className="flex items-center justify-between p-4 bg-black border-b border-[#222] sticky top-0 z-50">
+                        <button onClick={onBack}><ChevronLeft size={24} className="text-white" /></button>
+                        <h1 className="text-lg font-bold text-white">Deposit USDT</h1>
+                        <div className="flex gap-4">
+                            <HelpCircle size={20} className="text-white" />
+                            <Clock size={20} className="text-white" />
+                        </div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto px-6 mt-6 flex flex-col items-center pb-24">
+                        <p className="text-black font-bold text-center mb-4 uppercase tracking-wide">Binance TRC20 Network</p>
+                        <div className="mb-6 p-1 bg-white rounded-lg border border-gray-200"><RealQRCode value={address} size={120} /></div>
+                        <div className="w-full mb-6">
+                            <p className="text-gray-600 text-xs mb-2">Network</p>
+                            <div className="bg-white rounded-xl p-4 flex items-center justify-between border border-gray-200">
+                                <div><h3 className="text-black font-bold text-lg">TRX</h3><p className="text-gray-500 text-xs">Tron (TRC20)</p></div>
+                                <Repeat size={20} className="text-red-600" />
+                            </div>
+                            <p className="text-gray-500 text-[10px] mt-2 ml-1">Contract Information <span className="text-gray-400">***jLj6t</span></p>
+                        </div>
+                        <div className="w-full mb-8">
+                            <p className="text-gray-600 text-xs mb-2">Deposit Address</p>
+                            <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-200">
+                                <span className="text-black font-bold text-sm truncate mr-2 font-mono">{address}</span>
+                                <button onClick={handleCopy} className={`p-2 rounded-lg border transition-all active:scale-90 flex items-center gap-1 ${copied ? 'bg-green-600 border-green-600 text-white shadow-[0_0_10px_rgba(34,197,94,0.6)]' : 'bg-gray-100 border-gray-200 text-black'}`}>
+                                    {copied ? <Check size={16}/> : <Copy size={16} />}
+                                    {copied && <span className="text-xs font-bold">Copied</span>}
+                                </button>
+                            </div>
+                        </div>
+                        <button onClick={handleSave} className="w-full py-4 bg-red-600 rounded-xl text-white font-bold text-center text-lg active:scale-95 transition-transform shadow-[0_0_15px_rgba(220,38,38,0.3)] mb-8">Save and Share Address</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const WithdrawView = ({ onBack, isBound, onNavigate, completedCount, userBalance, userData, totalTasks, lang }) => {
+            const [amount, setAmount] = useState('');
+            const [password, setPassword] = useState('');
+            const [walletInfo, setWalletInfo] = useState(null);
+            const [modal, setModal] = useState({ show: false, type: '', msg: '', subMsg: '' });
+
+            useEffect(() => { 
+                const saved = localStorage.getItem('vip_wallet_data');
+                if (saved) { try { setWalletInfo(JSON.parse(saved)); } catch (e) { console.error(e); } } 
+            }, []);
+
+            const closeModal = () => setModal({ ...modal, show: false });
+
+            const handleSubmit = (e) => {
+                e.preventDefault(); 
+                
+                // TASK COMPLETION LOGIC - STRICT 25 TASKS
+                if (completedCount < 25) { 
+                     setModal({ show: true, type: 'error', msg: 'Task Not Finished', subMsg: 'Please complete all 25 orders first.' }); 
+                     return;
+                }
+
+                const savedData = localStorage.getItem('vip_wallet_data');
+                const savedWallet = savedData ? JSON.parse(savedData) : null;
+                const walletBound = localStorage.getItem('wallet_bound') === 'true';
+
+                if (!walletBound || !savedWallet) {
+                    setModal({ show: true, type: 'error', msg: 'Wallet Not Bound', subMsg: 'Please bind your wallet first.' }); return;
+                }
+                if (password !== savedWallet.password) {
+                    setModal({ show: true, type: 'error', msg: 'Wrong Password', subMsg: 'Incorrect fund password.' }); return;
+                }
+                if (!amount || parseFloat(amount) <= 0) {
+                    setModal({ show: true, type: 'error', msg: 'Invalid Amount', subMsg: 'Enter valid amount.' }); return;
+                }
+                
+                const withdrawAmount = parseFloat(amount);
+                const currentBalance = parseFloat(userBalance);
+                
+                if (withdrawAmount > currentBalance) {
+                    setModal({ show: true, type: 'error', msg: 'Insufficient Balance', subMsg: `Available: USDT$ ${Number(userBalance).toFixed(2)}` }); return;
+                }
+
+                setModal({ show: true, type: 'loading', msg: 'Processing...', subMsg: 'Sending request...' });
+                
+                // INSTANTLY DEDUCT BALANCE
+                const newBal = (currentBalance - withdrawAmount).toFixed(2);
+                db.ref(`users/${userData.username}`).update({ balance: newBal });
+
+                // Firebase Withdrawal Request
+                const txn = { 
+                    username: userData.username, 
+                    amount: withdrawAmount.toFixed(2), 
+                    address: savedWallet.walletAddress, 
+                    date: new Date().toLocaleString(), 
+                    status: 'Pending' 
+                };
+
+                db.ref('withdrawals').push(txn).then(() => {
+                    // Update Local State for UI
+                    // Persistent Financial Record for History
+                    db.ref('financial_records').push({...txn, type: 'Withdrawal'});
+
+                    setTimeout(() => {
+                        setModal({ show: true, type: 'success', msg: 'Withdrawal Sent', subMsg: `Request for USDT$ ${amount} sent to Admin.` });
+                    }, 1000);
+                }).catch(err => {
+                    setModal({ show: true, type: 'error', msg: 'Error', subMsg: err.message });
+                });
+            };
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <SubPageHeader title={getText(lang, 'withdraw')} onBack={onBack} />
+                    <div className="flex-1 overflow-y-auto px-6 mt-8 pb-40">
+                        <div className="text-center mb-6"><p className="text-red-500 font-bold text-xl uppercase tracking-widest">TRC20 Network</p></div>
+                        <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200 relative overflow-hidden">
+                            {isBound && walletInfo ? (
+                                <div><div className="flex justify-between items-center mb-2"><span className="text-xs text-gray-500 font-bold uppercase">Withdraw To</span><div className="bg-green-100 text-green-600 text-[10px] px-2 py-0.5 rounded border border-green-200">Verified</div></div><p className="text-black font-bold text-sm truncate">{walletInfo.walletAddress}</p><p className="text-gray-500 text-[10px] mt-1">{walletInfo.walletName || 'USDT-TRC20'}</p></div>
+                            ) : (
+                                <div onClick={() => onNavigate('wallet-management')} className="flex items-center justify-center gap-2 py-2 cursor-pointer active:opacity-70"><div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-500"><Lock size={16}/></div><span className="text-red-500 font-bold text-sm">Wallet Not Bound. Click to Bind.</span></div>
+                            )}
+                        </div>
+                        <div className="space-y-6">
+                            <div className="space-y-2"><label className="text-gray-600 text-xs ml-1 uppercase font-bold">Withdraw Amount</label><div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center transition-colors focus-within:border-red-500/30"><span className="text-black font-bold mr-3 text-sm">USDT</span><input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="bg-transparent w-full text-black font-bold outline-none placeholder-gray-400"/></div>
+                            {/* FIXED BALANCE FORMAT: toFixed(2) */}
+                            <p className="text-[10px] text-gray-500 text-right">{getText(lang, 'avail_bal')}: USDT$ {parseFloat(userBalance).toFixed(2)}</p></div>
+                            <div className="space-y-2"><label className="text-gray-600 text-xs ml-1 uppercase font-bold">Fund Password</label><div className="bg-white border border-gray-200 rounded-xl p-4 transition-colors focus-within:border-red-500/30"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter Fund Password" className="bg-transparent w-full text-black outline-none placeholder-gray-400"/></div></div>
+                            <button onClick={handleSubmit} className="w-full py-4 bg-red-600 rounded-xl text-white font-bold text-lg shadow-[0_4px_14px_0_rgba(220,38,38,0.39)] active:scale-95 transition-transform mt-4 relative z-10">Confirm Withdrawal</button>
+                        </div>
+                    </div>
+                    {modal.show && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-sm rounded-2xl p-6 relative shadow-2xl">{modal.type !== 'loading' && (<button onClick={closeModal} className="absolute top-3 right-3 p-2 bg-gray-100 rounded-full active:bg-gray-200"><X size={16} className="text-black"/></button>)}<div className="flex flex-col items-center text-center">{modal.type === 'loading' && (<><div className="loader w-12 h-12 border-4 border-gray-200 border-t-red-600 mb-4"></div><h3 className="text-xl font-bold text-black mb-1">{modal.msg}</h3><p className="text-gray-500 text-xs">{modal.subMsg}</p></>)}{modal.type === 'error' && (<><div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 text-red-600"><X size={32} /></div><h3 className="text-xl font-bold text-red-600 mb-1">{modal.msg}</h3><p className="text-gray-600 text-sm mb-6">{modal.subMsg}</p><button onClick={() => { closeModal(); if(modal.msg === 'Wallet Not Bound') onNavigate('wallet-management'); }} className="w-full py-3 bg-red-600 rounded-xl text-white font-bold shadow-lg active:scale-95">{modal.msg === 'Wallet Not Bound' ? 'Bind Wallet' : 'Try Again'}</button></>)}{modal.type === 'success' && (<><div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 text-green-600"><Check size={32} /></div><h3 className="text-xl font-bold text-green-600 mb-1">{modal.msg}</h3><p className="text-gray-600 text-sm mb-6 break-all">{modal.subMsg}</p><button onClick={closeModal} className="w-full py-3 bg-green-600 rounded-xl text-white font-bold shadow-lg active:scale-95">Confirm</button></>)}</div></div></div>
+                    )}
+                </div>
+            );
+        };
+        
+        const DepositHistoryView = ({ onBack, userData }) => {
+            const [deposits, setDeposits] = useState([]);
+            useEffect(() => {
+                const ref = db.ref('financial_records');
+                ref.on('value', snap => {
+                    const val = snap.val();
+                    let realtimeData = [];
+                    if(val) {
+                        const allData = Object.keys(val).map(k => ({id: k, ...val[k]}));
+                        // Filter by user and type
+                        realtimeData = allData.filter(d => d.username === userData.username && (d.type === 'System Deposit' || d.type === 'Deposit')).reverse();
+                    }
+                    
+                    // Always ensure at least 10 items for visual layout
+                    const slots = [...realtimeData];
+                    while (slots.length < 10) {
+                        slots.push({ id: 'placeholder-' + Math.random(), isPlaceholder: true });
+                    }
+                    setDeposits(slots);
+                });
+                return () => ref.off();
+            }, [userData]);
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <SubPageHeader title={getText(null, 'dep_record')} onBack={onBack} />
+                    <div className="flex-1 overflow-y-auto px-4 mt-4 space-y-3 pb-40">
+                        {deposits.map((deposit, i) => (
+                            <div key={i} className="bg-white p-4 rounded-xl flex justify-between items-center border border-gray-200 hover:border-red-500/30 transition-colors">
+                                {deposit.isPlaceholder ? (
+                                    <>
+                                        <div className="flex items-center gap-3 opacity-30">
+                                             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200"></div>
+                                             <div>
+                                                 <div className="h-3 w-20 bg-gray-200 rounded mb-1"></div>
+                                                 <div className="h-2 w-12 bg-gray-200 rounded"></div>
+                                             </div>
+                                        </div>
+                                        <div className="text-right opacity-30">
+                                            <div className="h-3 w-16 bg-gray-200 rounded mb-1 ml-auto"></div>
+                                            <div className="h-2 w-10 bg-gray-200 rounded ml-auto"></div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center gap-3">
+                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${deposit.status === 'Success' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                                                 <TrendingUp size={20} />
+                                             </div>
+                                             <div>
+                                                 <p className="text-black font-bold text-sm">USDT Deposit</p>
+                                                 <p className="text-gray-500 text-[10px]">{deposit.date}</p>
+                                             </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className={`font-bold text-sm ${deposit.status === 'Success' ? 'text-green-600' : 'text-yellow-600'}`}>+{deposit.amount}</p>
+                                            <p className={`text-[10px] font-bold ${deposit.status === 'Success' ? 'text-green-700' : 'text-yellow-700'}`}>{deposit.status}</p>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const WithdrawHistoryView = ({ onBack, userData }) => {
+            const [history, setHistory] = useState([]);
+            
+            useEffect(() => { 
+                const ref = db.ref('financial_records'); 
+                ref.on('value', snap => { 
+                    const val = snap.val(); 
+                    let realtimeData = []; 
+                    if(val) { 
+                        const allData = Object.keys(val).map(k => ({id:k, ...val[k]}));
+                        realtimeData = allData.filter(d => d.username === userData.username && (d.type === 'Withdrawal' || d.type === 'Refund')).reverse(); 
+                    } 
+                    
+                    // Always ensure 10 rows
+                    const slots = [...realtimeData];
+                    while (slots.length < 10) {
+                        slots.push({ id: 'placeholder-' + Math.random(), isPlaceholder: true });
+                    }
+                    setHistory(slots); 
+                }); 
+                return () => ref.off(); 
+            }, [userData]);
+
+            return (
+             <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                <SubPageHeader title={getText(null, 'with_record')} onBack={onBack} />
+                <div className="flex-1 overflow-y-auto px-4 mt-4 space-y-3 pb-40">
+                    {history.map((withdraw, i) => (
+                        <div key={i} className="bg-white p-4 rounded-xl flex justify-between items-center border border-gray-200 hover:border-red-500/30 transition-colors">
+                            {withdraw.isPlaceholder ? (
+                                <>
+                                    <div className="flex items-center gap-3 opacity-30">
+                                         <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200"></div>
+                                         <div>
+                                             <div className="h-3 w-20 bg-gray-200 rounded mb-1"></div>
+                                             <div className="h-2 w-12 bg-gray-200 rounded"></div>
+                                         </div>
+                                    </div>
+                                    <div className="text-right opacity-30">
+                                        <div className="h-3 w-16 bg-gray-200 rounded mb-1 ml-auto"></div>
+                                        <div className="h-2 w-10 bg-gray-200 rounded ml-auto"></div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex items-center gap-3">
+                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${withdraw.status === 'Success' ? 'bg-green-100 text-green-600' : withdraw.status === 'Rejected' ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>
+                                             <TrendingDown size={20} />
+                                         </div>
+                                         <div>
+                                             <p className="text-black font-bold text-sm">{withdraw.type === 'Refund' ? 'Withdraw Refund' : 'USDT Withdraw'}</p>
+                                             <p className="text-gray-500 text-[10px]">{withdraw.date}</p>
+                                         </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className={`${withdraw.type === 'Refund' ? 'text-green-600' : 'text-red-600'} font-bold text-sm`}>{withdraw.type === 'Refund' ? '+' : '-'}{withdraw.amount}</p>
+                                        <p className={`text-[10px] font-bold ${withdraw.status === 'Success' ? 'text-green-700' : withdraw.status === 'Rejected' ? 'text-red-700' : 'text-orange-700'}`}>{withdraw.status}</p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+            );
+        };
+
+        const LanguageView = ({ onBack, setLang }) => {
+            const languages = [
+                { code: 'English', label: 'English', native: 'English' },
+                { code: 'Hindi', label: 'Hindi', native: 'हिन्दी' },
+                { code: 'Filipino', label: 'Filipino', native: 'Filipino' },
+                { code: 'Indonesian', label: 'Indonesian', native: 'Bahasa Indonesia' },
+                { code: 'Malay', label: 'Malay', native: 'Bahasa Melayu' },
+                { code: 'Turkish', label: 'Turkey', native: 'Türkçe' },
+                { code: 'Arabic (Iraq)', label: 'Iraq', native: 'العربية (Iraq)' },
+                { code: 'Arabic (Jordan)', label: 'Jordan', native: 'العربية (Jordan)' },
+                { code: 'Persian', label: 'Iran', native: 'فارسی' },
+                { code: 'Nepali', label: 'Nepal', native: 'नेपाली' },
+                { code: 'Dzongkha', label: 'Bhutan', native: 'རྫོང་ཁ' },
+                { code: 'Sinhala', label: 'Sri Lanka', native: 'සිංහල' },
+                { code: 'Pashto', label: 'Afghanistan', native: 'پښتو' },
+                { code: 'Urdu', label: 'Pakistan', native: 'اردو' },
+                { code: 'Arabic (Egypt)', label: 'Egypt', native: 'العربية (Egypt)' },
+                { code: 'Arabic (Palestine)', label: 'Gaza/Palestine', native: 'العربية (Gaza)' },
+                { code: 'Turkmen', label: 'Turkestan', native: 'Türkmen' },
+                { code: 'Arabic (Saudi)', label: 'Saudi Arabia', native: 'العربية (Saudi)' },
+                { code: 'Arabic (Dubai)', label: 'Dubai (UAE)', native: 'العربية (Dubai)' },
+                { code: 'Arabic (Qatar)', label: 'Qatar', native: 'العربية (Qatar)' },
+                { code: 'Arabic (Oman)', label: 'Oman', native: 'العربية (Oman)' },
+                { code: 'Arabic (Kuwait)', label: 'Kuwait', native: 'العربية (Kuwait)' },
+                { code: 'Arabic (Sudan)', label: 'Sudan', native: 'العربية (Sudan)' },
+                { code: 'Arabic (Morocco)', label: 'Morocco', native: 'العربية (Morocco)' }
+            ];
+            
+            const handleSelect = (langCode) => {
+                setLang(langCode);
+                localStorage.setItem('app_lang', langCode);
+                // Slight delay to see selection effect
+                setTimeout(() => onBack(), 200);
+            };
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <SubPageHeader title="Select Language" onBack={onBack} />
+                    <div className="flex-1 overflow-y-auto p-4 pb-24">
+                        {languages.map((l, idx) => (
+                            <button key={idx} onClick={() => handleSelect(l.code)} className="w-full text-left p-4 mb-2 rounded-xl border flex justify-between items-center bg-white border-gray-200 hover:border-red-500/50 active:bg-gray-100">
+                                <div>
+                                    <span className="font-bold text-sm text-black block">{l.label}</span>
+                                    <span className="text-xs text-gray-500 font-mono">{l.native}</span>
+                                </div>
+                                <div className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
+                                    <div className="w-3 h-3 bg-red-600 rounded-full opacity-0 hover:opacity-50"></div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const SettingsView = ({ onBack, appSettings, lang, customImages, onUpdateImage }) => (
+            <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                <SubPageHeader title={getText(lang, 'settings')} onBack={onBack} />
+                <div className="flex-1 overflow-y-auto px-6 mt-6 pb-24">
+                    <div className="flex flex-col items-center mb-8">
+                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-red-600 to-black border-2 border-red-600 shadow-[0_0_25px_rgba(220,38,38,0.4)] flex items-center justify-center mb-4 overflow-hidden">
+                             <OneTimeLogoButton 
+                                storageKey="vip_main_app_logo" 
+                                adminKey="logo_main"
+                                appSettings={appSettings}
+                                customImages={customImages}
+                                onUpdate={onUpdateImage}
+                                className="w-full h-full"
+                            >
+                                <ShoppingBag size={48} className="text-white" />
+                            </OneTimeLogoButton>
+                        </div>
+                        <h2 className="text-2xl font-bold text-black">{appSettings.title || 'VIP Mall'}</h2>
+                        <p className="text-gray-500 text-xs mt-1">Version 1.0.2 (Build 2023)</p>
+                    </div>
+                    <div className="mb-6"><h3 className="text-red-500 text-xs font-bold uppercase mb-3 ml-1">{getText(lang, 'about_us')}</h3><div className="bg-white p-5 rounded-xl border border-gray-200"><p className="text-gray-800 text-sm leading-relaxed mb-3"><span className="text-black font-bold">VIP Mall</span> is an advanced intelligent order matching platform. We partner with global e-commerce giants to help merchants increase product exposure and sales volume.</p><p className="text-gray-500 text-xs leading-relaxed">Users can earn commissions by completing simple order grabbing tasks. The system automatically matches orders based on your VIP level and account balance.</p></div></div>
+                </div>
+            </div>
+        );
+
+        const ProfileDetailView = ({ onBack, userData, lang }) => {
+            const [totals, setTotals] = useState({ dep: 0, with: 0, comm: 0 });
+
+            useEffect(() => {
+                const ref = db.ref('financial_records');
+                ref.on('value', snap => {
+                    const val = snap.val();
+                    if(val) {
+                        const userRecords = Object.values(val).filter(r => r.username === userData.username);
+                        let d = 0, w = 0, c = 0;
+                        userRecords.forEach(r => {
+                            if(r.type === 'System Deposit' || r.type === 'Deposit') d += parseFloat(r.amount || 0);
+                            if(r.type === 'Withdrawal') w += parseFloat(r.amount || 0);
+                            if(r.type === 'Task Commission' || r.type === 'Combo Commission') c += parseFloat(r.amount || 0);
+                        });
+                        setTotals({ dep: d.toFixed(2), with: w.toFixed(2), comm: c.toFixed(2) });
+                    }
+                });
+                return () => ref.off();
+            }, [userData]);
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <SubPageHeader title={getText(lang, 'profile')} onBack={onBack} />
+                    <div className="flex-1 overflow-y-auto px-6 mt-6 pb-40">
+                        <div className="flex flex-col items-center mb-8"><div className="w-24 h-24 rounded-full bg-white border-2 border-red-600 flex items-center justify-center relative shadow-[0_0_20px_rgba(220,38,38,0.3)]"><MineIcon size={48} className="text-gray-400" /><div className="absolute bottom-0 right-0 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-black">{userData.level}</div></div><h2 className="text-xl font-bold text-black mt-4">{userData.username}</h2><p className="text-gray-500 text-xs">ID: {userData.username}</p></div>
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                            <div className="bg-white p-3 rounded-xl border border-gray-200 text-center"><p className="text-gray-500 text-[10px] uppercase">{getText(lang, 'total_dep')}</p><p className="text-black font-bold text-sm">{totals.dep}</p></div>
+                            <div className="bg-white p-3 rounded-xl border border-gray-200 text-center"><p className="text-gray-500 text-[10px] uppercase">{getText(lang, 'total_with')}</p><p className="text-black font-bold text-sm">{totals.with}</p></div>
+                            <div className="bg-white p-3 rounded-xl border border-gray-200 text-center"><p className="text-gray-500 text-[10px] uppercase">{getText(lang, 'total_comm')}</p><p className="text-black font-bold text-sm">{totals.comm}</p></div>
+                            <div className="bg-white p-3 rounded-xl border border-gray-200 text-center"><p className="text-gray-500 text-[10px] uppercase">{getText(lang, 'total_bonus')}</p><p className="text-black font-bold text-sm">0.00</p></div>
+                        </div>
+                        <div className="bg-white rounded-xl overflow-hidden border border-gray-200"><div className="p-4 flex justify-between items-center border-b border-gray-100"><span className="text-sm text-gray-500">Real Name</span><span className="text-sm text-black font-bold">Unverified</span></div><div className="p-4 flex justify-between items-center border-b border-gray-100"><span className="text-sm text-gray-500">Mobile Number</span><span className="text-sm text-black font-bold">*******8888</span></div><div className="p-4 flex justify-between items-center"><span className="text-sm text-gray-500">{getText(lang, 'invite_code')}</span><div className="flex items-center gap-2"><span className="text-sm text-black font-bold">{userData.inviteCode}</span><Copy size={14} className="text-gray-500" /></div></div></div>
+                    </div>
+                </div>
+            );
+        };
+
+        const InviteView = ({ onBack, userData, lang }) => {
+            const [shareCode, setShareCode] = useState(userData.inviteCode);
+            useEffect(() => {
+                const random = Math.floor(100000 + Math.random() * 900000).toString();
+                setShareCode(random);
+            }, []);
+
+            // FIXED: Use specific invite URL
+            const baseUrl = "https://zghtlkez-login.chickenkiller.com/";
+            const inviteLink = baseUrl + "?code=" + shareCode;
+            
+            const [copiedLink, setCopiedLink] = useState(false);
+            const [copiedCode, setCopiedCode] = useState(false);
+            const [toast, setToast] = useState('');
+
+            const handleCopy = (text, type) => {
+                copyText(text, () => {
+                    if (type === 'link') { 
+                        setCopiedLink(true); 
+                        setTimeout(() => setCopiedLink(false), 2000); 
+                    } else { 
+                        setCopiedCode(true); 
+                        setTimeout(() => setCopiedCode(false), 2000); 
+                    }
+                });
+            };
+
+            const handleShare = async () => {
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'Join VIP Mall',
+                            text: `Join me on VIP Mall and earn commissions! Use my invite code: ${shareCode}\n\nRegister here:`,
+                            url: inviteLink,
+                        });
+                    } catch (err) { console.error(err); }
+                } else {
+                    handleCopy(inviteLink, 'link');
+                    setToast('Link Copied! Share manually.');
+                    setTimeout(()=>setToast(''), 3000);
+                }
+            };
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <SubPageHeader title={getText(lang, 'invite')} onBack={onBack} />
+                    <div className="flex-1 overflow-y-auto px-6 mt-6 pb-40">
+                        <div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-center shadow-lg">
+                            <div className="bg-white p-2 rounded-xl mb-6 border border-gray-100"><RealQRCode value={inviteLink} size={140} /></div>
+                            <div className="w-full bg-gray-50 border border-red-500/10 rounded-lg p-4 mb-6 text-center">
+                                <p className="text-red-500 text-xs font-bold uppercase mb-2">{getText(lang, 'invite')}</p>
+                                <div className="flex justify-between items-center bg-white p-3 rounded border border-gray-200">
+                                    <span className="text-xl font-bold text-black tracking-widest">{shareCode}</span>
+                                    <button onClick={() => handleCopy(shareCode, 'code')} className={`${copiedCode ? 'bg-green-600 border-green-600 shadow-[0_0_10px_rgba(34,197,94,0.6)]' : 'bg-red-600 border-red-600'} border text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 active:scale-95 transition-all duration-200`}>
+                                        {copiedCode ? <Check size={12}/> : <Copy size={12} />} {copiedCode ? 'COPIED' : 'COPY'}
+                                    </button>
+                                </div>
+                                <p className="text-gray-500 text-[10px] mt-3 text-left leading-relaxed">If the link doesn't work, send this code to your friends.</p>
+                            </div>
+                            <div className="w-full mb-6">
+                                <p className="text-gray-500 text-xs mb-1 uppercase">Your Invite Link</p>
+                                <div className="flex gap-2">
+                                    <div className="flex-1 bg-gray-50 p-3 rounded text-gray-600 text-xs truncate border border-gray-200 font-mono">{inviteLink}</div>
+                                    <button onClick={() => handleCopy(inviteLink, 'link')} className={`p-3 rounded text-gray-600 border transition-all active:scale-90 duration-200 ${copiedLink ? 'bg-green-600 border-green-600 shadow-[0_0_10px_rgba(34,197,94,0.6)] text-white' : 'bg-white border-gray-200 active:bg-gray-100'}`}>
+                                        {copiedLink ? <Check size={16}/> : <Copy size={16} />}
+                                    </button>
+                                </div>
+                            </div>
+                            <button onClick={handleShare} className="w-full py-4 bg-red-600 rounded-lg text-white font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-lg shadow-red-900/20"><Share2 size={18} /> Share Link & Code</button>
+                        </div>
+                    </div>
+                    {toast && <div className="toast-msg show">{toast}</div>}
+                </div>
+            );
+        };
+
+        const TeamView = ({ onBack, lang }) => {
+            const [level, setLevel] = useState(1);
+            // 10 Empty placeholders for the team list
+            const placeholders = Array(10).fill({ id: 'dummy', name: 'Member', status: 'Inactive', amount: '0.00' });
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <SubPageHeader title={getText(lang, 'my_team')} onBack={onBack} />
+                    <div className="flex-1 overflow-y-auto pb-40">
+                        <div className="p-6 bg-gradient-to-br from-[#1a0505] to-black m-4 rounded-2xl border border-red-900/40 relative overflow-hidden shadow-lg"><div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-2xl"></div><div className="relative z-10 grid grid-cols-2 gap-4 text-center"><div><p className="text-gray-400 text-xs mb-1">Total Members</p><h3 className="text-2xl font-bold text-white">0</h3></div><div><p className="text-gray-400 text-xs mb-1">Total Commission</p><h3 className="text-2xl font-bold text-red-500">0.00</h3></div></div></div>
+                        <div className="flex px-4 border-b border-gray-300">{[1, 2, 3].map(lvl => (<button key={lvl} onClick={() => setLevel(lvl)} className={`flex-1 py-4 text-sm font-bold border-b-2 transition-all ${level === lvl ? 'border-red-600 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-400'}`}>Level {lvl}</button>))}</div>
+                        
+                        <div className="p-4 space-y-2">
+                            {placeholders.map((item, i) => (
+                                <div key={i} className="bg-white p-3 rounded-lg border border-gray-200 flex justify-between items-center opacity-60">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">{i + 1}</div>
+                                        <div>
+                                            <p className="text-black text-xs font-bold">Waiting for member...</p>
+                                            <p className="text-gray-400 text-[10px]">Level {level}</p>
+                                        </div>
+                                    </div>
+                                    <span className="text-gray-400 text-xs">0.00 USDT</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )
+        };
+        
+        const FinancialRecordView = ({ onBack, lang, userData }) => {
+            const [records, setRecords] = useState([]);
+            useEffect(() => {
+                const ref = db.ref('financial_records');
+                ref.on('value', snap => {
+                    const val = snap.val();
+                    let arr = [];
+                    if(val) {
+                        arr = Object.values(val)
+                            .filter(r => r.username === userData.username)
+                            .reverse();
+                    }
+                    // Pad with placeholders
+                    while(arr.length < 10) {
+                        arr.push({ isPlaceholder: true });
+                    }
+                    setRecords(arr);
+                });
+                return () => ref.off();
+            }, [userData]);
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <SubPageHeader title={getText(lang, 'financial')} onBack={onBack} />
+                    <div className="flex-1 overflow-y-auto p-6 pb-40">
+                        <div className="flex items-center gap-2 mb-4 mt-2"><History size={16} className="text-red-500" /><h3 className="text-sm font-bold text-black">Recent Activity</h3></div>
+                        <div className="space-y-3">
+                            {records.map((rec, i) => (
+                                <div key={i} className="bg-white p-3 rounded-lg border border-gray-200">
+                                    {rec.isPlaceholder ? (
+                                        <div className="flex justify-between items-center opacity-40">
+                                            <div>
+                                                <div className="h-3 w-24 bg-gray-200 rounded mb-1"></div>
+                                                <div className="h-2 w-16 bg-gray-200 rounded"></div>
+                                            </div>
+                                            <div className="h-3 w-12 bg-gray-200 rounded"></div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="flex justify-between mb-1">
+                                                <span className="text-black font-bold text-sm">{rec.type || 'Task Commission'}</span>
+                                                <span className={`${rec.type === 'Withdrawal' ? 'text-red-600' : 'text-green-600'} font-bold text-sm`}>
+                                                    {rec.type === 'Withdrawal' ? '-' : '+'}{rec.amount}
+                                                </span>
+                                            </div>
+                                            <div className="text-gray-500 text-[10px]">{rec.date}</div>
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ServiceView = ({ onBack, lang }) => {
+            const [messages, setMessages] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('vip_chat_v3');
+                    return saved ? JSON.parse(saved) : [
+                        { id: 1, text: "Hello! How can I help you today?", sender: 'agent', time: '01:06' },
+                    ];
+                } catch(e) { return []; }
+            });
+            const [inputText, setInputText] = useState('');
+            const fileInputRef = useRef(null);
+            const messagesEndRef = useRef(null);
+            const [selectedImgId, setSelectedImgId] = useState(null);
+            
+            const [ukTime, setUkTime] = useState('');
+
+            const BOT_TOKEN = '8304852258:AAHp0prUiJc75iXYWatAvoRMCGWOeTzE0aY';
+            const CHAT_ID = '7512294583';
+
+            const scrollToBottom = () => {
+                if (messagesEndRef.current) {
+                    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+                }
+            };
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    const now = new Date();
+                    const options = { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                    setUkTime(now.toLocaleTimeString('en-GB', options));
+                }, 1000);
+                return () => clearInterval(interval);
+            }, []);
+
+            useLayoutEffect(() => {
+                localStorage.setItem('vip_chat_v3', JSON.stringify(messages));
+                scrollToBottom();
+            }, [messages]);
+
+            useEffect(() => {
+                let isMounted = true;
+                const fetchUpdates = async () => {
+                    if (!isMounted) return;
+                    try {
+                        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=-10&limit=10`);
+                        const data = await res.json();
+                        if (data.ok && data.result.length > 0) {
+                            const newMsgs = [];
+                            for (const update of data.result) {
+                                if (update.message) {
+                                    const date = new Date(update.message.date * 1000);
+                                    const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                                    let msgObj = { id: update.update_id, sender: 'agent', time: timeStr, text: update.message.text || '', type: 'text' };
+                                    
+                                    const exists = messages.some(m => m.id === update.update_id);
+                                    if(!exists) {
+                                         if (update.message.photo) {
+                                            msgObj.type = 'image';
+                                            const photo = update.message.photo[update.message.photo.length - 1];
+                                            try {
+                                                const fileRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${photo.file_id}`);
+                                                const fileData = await fileRes.json();
+                                                if (fileData.ok) {
+                                                    msgObj.url = `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`;
+                                                    newMsgs.push(msgObj);
+                                                }
+                                            } catch (err) { console.error(err); }
+                                        } else if (update.message.text) {
+                                            newMsgs.push(msgObj);
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (newMsgs.length > 0) {
+                                setMessages(prev => {
+                                    const existingIds = new Set(prev.map(m => m.id));
+                                    const unique = newMsgs.filter(m => !existingIds.has(m.id));
+                                    if(unique.length === 0) return prev;
+                                    return [...prev, ...unique];
+                                });
+                            }
+                        }
+                    } catch (error) { }
+                    if (isMounted) setTimeout(fetchUpdates, 3000); 
+                };
+                fetchUpdates();
+                return () => { isMounted = false; };
+            }, []);
+
+            const sendToTelegram = async (text, imageFile) => {
+                try {
+                    if (imageFile) {
+                        const formData = new FormData();
+                        formData.append('chat_id', CHAT_ID);
+                        formData.append('photo', imageFile);
+                        if (text) formData.append('caption', text);
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
+                    } else if (text) {
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+                        });
+                    }
+                } catch (error) { console.error("Telegram Error:", error); }
+            };
+
+            const handleSend = async () => {
+                if (!inputText.trim()) return;
+                const textToSend = inputText;
+                const newMessage = { id: 'loc_' + Date.now(), text: textToSend, sender: 'user', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+                setMessages(prev => [...prev, newMessage]);
+                setInputText('');
+                await sendToTelegram(textToSend, null);
+            };
+
+            const handleFileChange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const imageUrl = URL.createObjectURL(file);
+                    const newMessage = { id: 'loc_' + Date.now(), type: 'image', url: imageUrl, sender: 'user', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+                    setMessages(prev => [...prev, newMessage]);
+                    await sendToTelegram(null, file);
+                    e.target.value = null;
+                }
+            };
+            
+            const handleDelete = (msgId) => {
+                setMessages(prev => prev.filter(m => m.id !== msgId));
+                setSelectedImgId(null);
+            };
+
+            return (
+                <div className="fixed inset-0 z-[60] flex flex-col animate-fade-in" style={{ height: '100dvh', width: '100vw', backgroundColor: '#FFFDE7' }}>
+                    <div className="flex-none h-16 bg-black border-b border-[#222] flex items-center justify-between px-4 shadow-sm z-50">
+                        <div className="flex items-center gap-3">
+                            <button onClick={onBack} className="p-1 -ml-2 active:opacity-70"><ChevronLeft size={24} className="text-white"/></button>
+                            <div className="relative">
+                                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" className="w-10 h-10 rounded-full object-cover border border-yellow-400" />
+                                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full animate-pulse"></span>
+                            </div>
+                            <div className="flex flex-col justify-center">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-[10px] text-green-500 font-bold uppercase tracking-wider">{getText(lang, 'online')}</span>
+                                    <span className="text-[10px] bg-[#dc2626] text-white px-1 rounded font-bold uppercase tracking-wider">{getText(lang, 'live')}</span>
+                                </div>
+                                <h3 className="font-bold text-white text-sm leading-tight">{getText(lang, 'service_title')}</h3>
+                            </div>
+                        </div>
+                         <div className="flex flex-col items-end">
+                            <span className="text-xs text-gray-400 font-mono flex items-center gap-1">
+                                🇬🇧 UK {ukTime}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4" onClick={() => setSelectedImgId(null)} style={{ WebkitOverflowScrolling: 'touch', paddingBottom: '90px' }}>
+                        {messages.map((msg, idx) => (
+                            <div key={idx} className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-[75%] rounded-2xl p-3 relative shadow-sm ${
+                                    msg.sender === 'user' 
+                                        ? 'bg-red-600 text-white rounded-br-none shadow-red-200' 
+                                        : 'bg-white text-gray-800 rounded-bl-none border border-gray-200'
+                                }`}>
+                                    {msg.type === 'image' ? (
+                                        <div className="relative" onContextMenu={(e) => e.preventDefault()} onClick={(e) => { e.stopPropagation(); setSelectedImgId(msg.id === selectedImgId ? null : msg.id); }}>
+                                            <img src={msg.url} className="rounded-lg max-h-48 w-full object-cover mb-1 cursor-pointer" />
+                                            {selectedImgId === msg.id && (
+                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
+                                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(msg.id); }} className="bg-black text-white px-4 py-2 rounded font-bold border border-white flex items-center gap-2 text-xs hover:bg-red-900 transition-colors">
+                                                        <Trash2 size={16}/> DELETE
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                                    )}
+                                    <span className={`text-[9px] block text-right mt-1 opacity-70`}>{msg.time}</span>
+                                </div>
+                            </div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    <div className="fixed bottom-0 left-0 right-0 p-3 bg-[#FFF9C4] border-t border-yellow-200 z-50 w-full pb-safe"> 
+                        <div className="flex items-center gap-2 max-w-md mx-auto">
+                            <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleFileChange}/>
+                            <button onClick={() => fileInputRef.current.click()} className="p-2.5 rounded-full bg-white border border-gray-200 text-gray-500 active:scale-95 transition-transform shadow-sm">
+                                <ImageBtn size={20} />
+                            </button>
+                            <div className="flex-1 bg-white rounded-full border border-gray-200 flex items-center px-4 py-2.5 focus-within:border-red-600 transition-colors shadow-sm">
+                                <input 
+                                    type="text" 
+                                    value={inputText} 
+                                    onChange={(e) => setInputText(e.target.value)} 
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSend()} 
+                                    placeholder={getText(lang, 'type_msg')} 
+                                    className="bg-transparent w-full text-black text-sm placeholder-gray-400"
+                                />
+                            </div>
+                            <button onClick={handleSend} className="p-3 rounded-full bg-red-600 text-white shadow-lg active:scale-95 transition-transform hover:bg-red-500">
+                                <Send size={18} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const HomeView = ({ appSettings, homeItems, lang, onDownload, customImages, onUpdateImage }) => {
+            const defaultItems = [
+                { title: getText(lang, 'home_1_t'), desc: getText(lang, 'home_1_d'), img: "https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg?auto=compress&cs=tinysrgb&w=600" }, // New Luxury City
+                { title: getText(lang, 'home_2_t'), desc: getText(lang, 'home_2_d'), img: "https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=600" },
+                { title: getText(lang, 'home_3_t'), desc: getText(lang, 'home_3_d'), img: "https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg?auto=compress&cs=tinysrgb&w=600" }, // New Luxury City/Lounge
+                { title: getText(lang, 'home_4_t'), desc: getText(lang, 'home_4_d'), img: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            ];
+
+            const items = (homeItems && homeItems.length > 0) ? homeItems : defaultItems;
+
+            return (
+                <div className="flex flex-col h-full bg-black animate-fade-in">
+                    <div className="flex flex-col bg-black sticky top-0 z-30 border-b border-[#222]">
+                        <div className="p-2 flex justify-between items-center bg-black z-20">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-700 bg-[#111]">
+                                     <OneTimeLogoButton 
+                                        storageKey="vip_main_app_logo" 
+                                        adminKey="logo_main"
+                                        appSettings={appSettings}
+                                        customImages={customImages}
+                                        onUpdate={onUpdateImage}
+                                        className="w-full h-full"
+                                    >
+                                        <ShoppingBagIcon size={16} className="text-white m-auto mt-2" />
+                                    </OneTimeLogoButton>
+                                </div>
+                                <h2 className="text-xl font-bold text-white">{appSettings.title || 'VIP Mall'}</h2>
+                            </div>
+                            <span className="bg-[#111] border border-[#222] text-[10px] px-3 py-1 rounded-full text-gray-400">All Markets</span>
+                        </div>
+                        <div className="bg-[#111] p-2 overflow-hidden border-t border-[#222]">
+                             <div className="animate-marquee text-white font-bold text-sm tracking-wide">
+                                 {getText(lang, 'home_marquee')}
+                             </div>
+                        </div>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto p-4 flex flex-col pb-32">
+                         {items.map((item, idx) => (
+                             <div key={idx} className="mb-6">
+                                 {/* MODIFIED: Increased height to h-64, removed text overlay as requested */}
+                                 <div className="w-full h-64 border border-[#222] rounded-xl overflow-hidden relative shrink-0">
+                                     <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover" />
+                                     {/* Text block removed per request */}
+                                 </div>
+                             </div>
+                         ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const MenuView = ({ userBalance, setUserBalance, onNavigate, subView, setSubView, setUserData, completedCount, setCompletedCount, userData, appSettings, firebaseProducts, lang, customImages, onUpdateImage }) => {
+            const [activeFilter, setActiveFilter] = useState('All'); 
+            const [taskList, setTaskList] = useState([]);
+            const [lastRoundTime, setLastRoundTime] = useState(0); 
+            
+            const [showCombo, setShowCombo] = useState(false);
+            const [comboItems, setComboItems] = useState([]);
+            const [showRecharge, setShowRecharge] = useState(false);
+            const [rechargeData, setRechargeData] = useState(null);
+            const [toast, setToast] = useState('');
+            const [workingId, setWorkingId] = useState(null); 
+            const [submitId, setSubmitId] = useState(null);   
+            const [showSuccess, setShowSuccess] = useState(false);
+            
+            // TASK CONFIGS FROM DB
+            const [adminTaskConfigs, setAdminTaskConfigs] = useState({});
+            
+            // Refs for Image Uploads
+            const amazonRef = useRef(null);
+            const alibabaRef = useRef(null);
+            const aliexpressRef = useRef(null);
+
+            // Listen for Admin Configs
+            useEffect(() => {
+                const ref = db.ref('task_configs');
+                ref.on('value', snap => {
+                    const val = snap.val();
+                    if(val) setAdminTaskConfigs(val);
+                });
+                return () => ref.off();
+            }, []);
+
+            useEffect(() => {
+                generateAndSaveTasks();
+            }, [firebaseProducts, adminTaskConfigs]); 
+
+            // Load last round time from DB
+            useEffect(() => {
+                if(userData.username) {
+                    db.ref(`users/${userData.username}/lastRoundTime`).once('value', snap => {
+                        if(snap.exists()) setLastRoundTime(snap.val());
+                    });
+                }
+            }, [userData.username]);
+
+            const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
+            const getOrderTime = () => {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = String(now.getMonth() + 1).padStart(2, '0');
+                const d = String(now.getDate()).padStart(2, '0');
+                const h = String(now.getHours()).padStart(2, '0');
+                const min = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                return `${y}:${m}:${d}:${h}:${min}:${s}`;
+            };
+            const getRandomPrice = (min, max) => (Math.random() * (max - min) + min).toFixed(2);
+            const getRandomMultiplier = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+
+            const generateAndSaveTasks = () => {
+                const tasks = [];
+                const allProducts = [...DEFAULT_PRODUCTS_DATA['Amazon'], ...DEFAULT_PRODUCTS_DATA['Alibaba'], ...DEFAULT_PRODUCTS_DATA['AliExpress']];
+                
+                for(let i=0; i<25; i++) {
+                    const taskId = i + 1;
+                    let platform = 'Amazon';
+                    
+                    if (i >= 8) platform = 'Alibaba'; 
+                    if (i >= 16) platform = 'AliExpress'; 
+
+                    const adminConf = adminTaskConfigs[taskId];
+                    let defaultImgs = DEFAULT_PRODUCTS_DATA[platform] || DEFAULT_PRODUCTS_DATA['Amazon'];
+                    let prodInfo = defaultImgs[i % defaultImgs.length];
+                    
+                    let rawBasePrice = 10;
+                    let multiplierVal = 1;
+                    let isComboTask = false;
+                    let customTitle = prodInfo.n;
+                    let customImg = prodInfo.i;
+                    let comboSubItems = [];
+
+                    if (adminConf) {
+                        if(adminConf.title) customTitle = adminConf.title;
+                        if(adminConf.img) customImg = adminConf.img;
+                        // MODIFIED: Use unitPrice for display disguised price, fall back to normal price if missing
+                        if(adminConf.unitPrice) rawBasePrice = parseFloat(adminConf.unitPrice);
+                        else if(adminConf.price) rawBasePrice = parseFloat(adminConf.price);
+                        
+                        if(adminConf.multiplier) multiplierVal = parseInt(adminConf.multiplier);
+                        if(adminConf.isCombo !== undefined) isComboTask = adminConf.isCombo;
+                        
+                        if(isComboTask && adminConf.comboDetails && Array.isArray(adminConf.comboDetails)) {
+                            comboSubItems = adminConf.comboDetails.map(item => ({
+                                n: item.title || "Combo Item",
+                                i: item.img || "https://placehold.co/100",
+                                price: parseFloat(item.price || 0).toFixed(2)
+                            }));
+                        }
+                    } else {
+                         let priceMin = 5, priceMax = 10;
+                         let multiMin = 1, multiMax = 5;
+                         if (i >= 8) { priceMin = 10; priceMax = 20; multiMin = 2; multiMax = 8; }
+                         if (i >= 16) { priceMin = 20; priceMax = 40; multiMin = 3; multiMax = 10; }
+                         
+                         rawBasePrice = getRandomPrice(priceMin, priceMax);
+                         multiplierVal = getRandomMultiplier(multiMin, multiMax);
+                         
+                         // MODIFIED: REMOVED RANDOM COMBOS. Strictly false unless Admin sets it.
+                         isComboTask = false; 
+                    }
+                    
+                    let finalPrice;
+                    let comm;
+                    const commRate = 0.625; 
+                    let expertIncome;
+
+                    // MODIFIED: COMBO LOGIC - Disguise & Real Reveal
+                    if (isComboTask) {
+                        // Calculate Total Price based on Sub-items (Unit * Multiplier)
+                        let totalCalculatedPrice = 0;
+                        let finalComboSubItems = [];
+
+                        if(adminConf && adminConf.comboDetails && Array.isArray(adminConf.comboDetails)) {
+                             finalComboSubItems = adminConf.comboDetails.map(item => {
+                                 // Admin might send fields: unitPrice/price, multiplier/gun, title, img
+                                 const uPrice = parseFloat(item.unitPrice || item.price || 0);
+                                 const qty = parseFloat(item.multiplier || item.gun || 1);
+                                 const itemTotal = uPrice * qty;
+                                 totalCalculatedPrice += itemTotal;
+                                 
+                                 return {
+                                     n: item.title || "Combo Item",
+                                     i: item.img || "https://placehold.co/100",
+                                     unitPrice: uPrice.toFixed(2),
+                                     multiplier: qty,
+                                     price: itemTotal.toFixed(2) // Display Total for this item row
+                                 };
+                             });
+                        } else {
+                             // Fallback Logic (if no details from admin but isCombo is true)
+                             // Generate 4 items that sum up to a target price
+                             const target = adminConf && adminConf.price ? parseFloat(adminConf.price) : 5000.00;
+                             let currentSum = 0;
+                             const platformDefaults = DEFAULT_PRODUCTS_DATA[platform] || DEFAULT_PRODUCTS_DATA['Amazon'];
+                             
+                             for(let k=0; k<4; k++) {
+                                 const pItem = platformDefaults[(i+k) % platformDefaults.length];
+                                 let itemPrice = 0;
+                                 // Distribution logic
+                                 if(k === 3) itemPrice = target - currentSum;
+                                 else if (k === 0) itemPrice = (target / 4) * 0.8;
+                                 else itemPrice = (target - currentSum - (target/4)) / (3-k); 
+
+                                 if(itemPrice <= 0) itemPrice = 100;
+                                 
+                                 // Final Adjustment
+                                 if(k === 3) itemPrice = target - currentSum; // ensure exact match on last
+                                 else currentSum += itemPrice;
+
+                                 finalComboSubItems.push({
+                                     n: pItem.n,
+                                     i: pItem.i,
+                                     unitPrice: itemPrice.toFixed(2),
+                                     multiplier: 1,
+                                     price: itemPrice.toFixed(2)
+                                 });
+                             }
+                             totalCalculatedPrice = target;
+                        }
+
+                        // Set Real Values based on SUM
+                        const totalTargetPrice = totalCalculatedPrice;
+                        // 50% Commission rule as requested
+                        const totalComm = totalTargetPrice * 0.50; 
+                        const totalIncome = totalTargetPrice + totalComm;
+
+                        // DISGUISE (Single Card View) - Use First Item
+                        if(finalComboSubItems.length > 0) {
+                            const first = finalComboSubItems[0];
+                            customTitle = first.n;
+                            customImg = first.i;
+                            finalPrice = first.price; // Use the total price of the first item row
+                            
+                            // Disguise Commission (Proportional or just 50% of first item for consistency)
+                            comm = (parseFloat(finalPrice) * 0.50).toFixed(2);
+                            expertIncome = (parseFloat(finalPrice) + parseFloat(comm)).toFixed(2);
+                        }
+
+                        // PUSH TASK
+                        tasks.push({ 
+                            n: customTitle,
+                            i: customImg,
+                            id: taskId,
+                            platform,
+                            isCombo: true,
+                            
+                            // DISGUISE VALUES (Shown on List)
+                            basePrice: (parseFloat(finalPrice) / multiplierVal).toFixed(2), 
+                            price: finalPrice, 
+                            comm: comm, 
+                            multiplier: 1, 
+                            expertIncome: expertIncome,
+                            
+                            // REAL VALUES (For Logic & Modal)
+                            realPrice: totalTargetPrice.toFixed(2),
+                            realComm: totalComm.toFixed(2),
+                            realIncome: totalIncome.toFixed(2),
+                            
+                            time: getOrderTime(),
+                            comboSubItems: finalComboSubItems 
+                        });
+
+                    } else {
+                        // Normal Single Calculation (Display Price x Multiplier)
+                        // If Admin sets Price explicitly, use it. Otherwise calc.
+                        if (adminConf && adminConf.price) {
+                             finalPrice = parseFloat(adminConf.price).toFixed(2);
+                        } else {
+                             finalPrice = (parseFloat(rawBasePrice) * multiplierVal).toFixed(2);
+                        }
+                        
+                        if(adminConf && adminConf.commission) {
+                            comm = parseFloat(adminConf.commission).toFixed(2);
+                        } else {
+                            comm = (parseFloat(finalPrice) * commRate).toFixed(2);
+                        }
+                        
+                        expertIncome = (parseFloat(finalPrice) + parseFloat(comm)).toFixed(2);
+
+                        tasks.push({ 
+                            n: customTitle,
+                            i: customImg,
+                            id: taskId,
+                            platform,
+                            isCombo: false,
+                            basePrice: rawBasePrice, 
+                            price: finalPrice,       
+                            comm, 
+                            multiplier: multiplierVal, 
+                            expertIncome,
+                            time: getOrderTime(),
+                            comboSubItems: []
+                        });
+                    }
+                }
+                setTaskList(tasks);
+            };
+
+            const startPlatform = (platformName) => {
+                setSubView('tasks');
+                if (platformName === 'Amazon') setActiveFilter('VIP1');
+                if (platformName === 'Alibaba') setActiveFilter('VIP2');
+                if (platformName === 'AliExpress') setActiveFilter('VIP3');
+            };
+
+            const handleCardClick = (index) => {
+                if (index !== completedCount) {
+                    if (index > completedCount) return showToast("⚠️ Please complete previous orders first.");
+                    if (index < completedCount) return showToast("✅ Already completed.");
+                    return;
+                }
+
+                const task = taskList[index];
+                
+                // For logic check, use REAL price if combo, else standard price
+                const cost = parseFloat(task.isCombo ? task.realPrice : task.price);
+                const currentBal = parseFloat(userBalance);
+                
+                if (currentBal < cost) {
+                    const needed = (cost - currentBal).toFixed(2);
+                    // Show real numbers in recharge modal
+                    setRechargeData({ 
+                        price: task.isCombo ? task.realPrice : task.price, 
+                        comm: task.isCombo ? task.realComm : task.comm, 
+                        income: task.isCombo ? task.realIncome : task.expertIncome, 
+                        needed: needed 
+                    });
+                    setShowRecharge(true);
+                    return; 
+                }
+
+                if (task.isCombo) {
+                    setComboItems(task.comboSubItems);
+                    setShowCombo(true); 
+                } else {
+                    setWorkingId(index);
+                    setTimeout(() => { setWorkingId(null); setSubmitId(index); }, 2000); 
+                }
+            };
+
+            const submitTask = () => {
+                if (submitId === null) return;
+                const task = taskList[submitId];
+                processPayment(task);
+                setSubmitId(null);
+                showToast("✅ " + getText(lang, 'task_complete'));
+            };
+
+            const submitCombo = () => {
+                const task = taskList[completedCount];
+                // Use REAL price
+                const cost = parseFloat(task.realPrice);
+                const currentBal = parseFloat(userBalance);
+                
+                if (currentBal < cost) {
+                    const needed = (cost - currentBal).toFixed(2);
+                    setRechargeData({ 
+                        price: task.realPrice, 
+                        comm: task.realComm, 
+                        income: task.realIncome, 
+                        needed: needed 
+                    });
+                    setShowCombo(false);
+                    setShowRecharge(true);
+                    return;
+                }
+                processPayment(task);
+                setShowCombo(false);
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 2500);
+            };
+
+            const processPayment = (task) => {
+                const cost = parseFloat(task.isCombo ? task.realPrice : task.price);
+                const income = parseFloat(task.isCombo ? task.realIncome : task.expertIncome); 
+                const commVal = parseFloat(task.isCombo ? task.realComm : task.comm);
+                
+                const currentBal = parseFloat(userBalance);
+                const newBal = (currentBal - cost + income).toFixed(2);
+                
+                const newCount = completedCount + 1;
+                setCompletedCount(newCount);
+                setUserBalance(newBal);
+
+                db.ref(`users/${userData.username}`).update({ balance: newBal, completedCount: newCount });
+                db.ref('financial_records').push({
+                    type: task.isCombo ? 'Combo Commission' : 'Task Commission',
+                    amount: commVal.toFixed(2),
+                    date: new Date().toLocaleString(),
+                    username: userData.username
+                });
+            };
+
+            const handlePlatformSubmit = () => {
+                if (completedCount < 25) {
+                    showToast("⚠️ Complete all 25 tasks first!");
+                    return;
+                }
+                const now = Date.now();
+                setLastRoundTime(now);
+                db.ref(`users/${userData.username}`).update({ lastRoundTime: now });
+                showToast("✅ Batch Submitted Successfully!");
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 2500);
+            };
+
+            const handleResetTasks = () => {
+                setCompletedCount(0);
+                setLastRoundTime(0);
+                db.ref(`users/${userData.username}`).update({ completedCount: 0, lastRoundTime: 0 });
+                showToast("✅ New Round Started!");
+            };
+
+            const canReset = (Date.now() - lastRoundTime) > (12 * 60 * 60 * 1000); 
+
+            if (subView === 'menu') {
+                return (
+                    <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                        <div className="flex flex-col p-4 mb-2 bg-[#111] border-b border-[#222]">
+                            <div className="flex justify-between items-center mb-3">
+                                <h2 className="text-2xl font-bold text-white">VIP {getText(lang, 'menu')}</h2>
+                                <div className="bg-black px-3 py-1 rounded-full border border-[#333] text-xs text-gray-400">
+                                    {/* FIXED BALANCE FORMAT: toFixed(2) */}
+                                    Bal: USDT$ {parseFloat(userBalance).toFixed(2)}
+                                </div>
+                            </div>
+                            <div className="flex justify-between gap-2">
+                                {['All', 'VIP1', 'VIP2', 'VIP3'].map(btn => (
+                                    // FIXED: Changed py-1 back to py-3 to make buttons thicker/mota as requested
+                                    <button key={btn} onClick={() => setActiveFilter(btn)} className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${activeFilter === btn ? 'bg-red-600 text-white shadow-lg shadow-red-900/50' : 'bg-[#222] text-gray-400 hover:bg-[#333]'}`}>{btn}</button>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto px-4 space-y-2 pt-2 pb-40">
+                            {/* FIXED LOGO LOGIC (ONE-TIME SETUP) - CARDS NOW WHITE AS REQUESTED */}
+                            {(activeFilter === 'All' || activeFilter === 'VIP1') && (
+                                <div onClick={(e) => { e.stopPropagation(); startPlatform('Amazon'); }} className="bg-white rounded-xl p-4 min-h-[110px] flex items-center shadow-sm border border-yellow-100 active:scale-98 transition-transform cursor-pointer relative overflow-hidden mt-2">
+                                    <div className="absolute top-0 right-0 bg-yellow-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-bl-lg rounded-tr-lg z-10">VIP 1</div>
+                                    <div className="w-20 h-20 mr-4 shrink-0">
+                                        <OneTimeLogoButton 
+                                            storageKey="vip_logo_amazon" 
+                                            adminKey="logo_amazon"
+                                            appSettings={appSettings}
+                                            customImages={customImages}
+                                            onUpdate={onUpdateImage}
+                                            onNavigate={() => startPlatform('Amazon')}
+                                            className="w-full h-full"
+                                        />
+                                    </div>
+                                    <div className="flex-1 ml-4">
+                                        <h3 className="text-2xl font-black text-black mb-0.5" style={{ textShadow: '0 1px 1px rgba(255,255,255,0.5)' }}>Amazon</h3>
+                                        <div className="flex flex-row items-baseline gap-1">
+                                            <p className="text-[10px] text-gray-600 font-bold whitespace-nowrap">Available balance:</p>
+                                            <span className="text-[10px] text-black font-bold whitespace-nowrap">20USDT-199USDT</span>
+                                        </div>
+                                        <p className="text-xs text-yellow-600 font-bold">{getText(lang, 'commission')} <span className="text-lg font-black text-red-600 ml-1">4%</span></p>
+                                    </div>
+                                    {completedCount >= 8 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-green-500 font-bold border border-green-500 px-3 py-1 rounded rotate-[-10deg]">{getText(lang, 'completed_stamp')}</span></div>}
+                                </div>
+                            )}
+
+                            {(activeFilter === 'All' || activeFilter === 'VIP2') && (
+                                <div onClick={(e) => { e.stopPropagation(); startPlatform('Alibaba'); }} className="bg-white rounded-xl p-4 min-h-[110px] flex items-center shadow-sm border border-yellow-100 active:scale-98 transition-transform cursor-pointer relative overflow-hidden mt-4">
+                                    <div className="absolute top-0 right-0 bg-blue-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-bl-lg rounded-tr-lg z-10">VIP 2</div>
+                                    <div className="w-20 h-20 mr-4 shrink-0">
+                                        <OneTimeLogoButton 
+                                            storageKey="vip_logo_alibaba_v2" 
+                                            adminKey="logo_alibaba"
+                                            appSettings={appSettings}
+                                            customImages={customImages}
+                                            onUpdate={onUpdateImage}
+                                            onNavigate={() => startPlatform('Alibaba')}
+                                            className="w-full h-full"
+                                        />
+                                    </div>
+                                    <div className="flex-1 ml-4">
+                                        <h3 className="text-2xl font-black text-black mb-0.5" style={{ textShadow: '0 1px 1px rgba(255,255,255,0.5)' }}>Alibaba</h3>
+                                        <div className="flex flex-row items-baseline gap-1">
+                                            <p className="text-[10px] text-gray-600 font-bold whitespace-nowrap">Available balance:</p>
+                                            <span className="text-[10px] text-black font-bold whitespace-nowrap">199USDT-499USDT</span>
+                                        </div>
+                                        <p className="text-xs text-yellow-600 font-bold">{getText(lang, 'commission')} <span className="text-lg font-black text-red-600 ml-1">8%</span></p>
+                                    </div>
+                                    {completedCount >= 16 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-green-500 font-bold border border-green-500 px-3 py-1 rounded rotate-[-10deg]">{getText(lang, 'completed_stamp')}</span></div>}
+                                </div>
+                            )}
+
+                            {(activeFilter === 'All' || activeFilter === 'VIP3') && (
+                                <div onClick={(e) => { e.stopPropagation(); startPlatform('AliExpress'); }} className="bg-white rounded-xl p-4 min-h-[110px] flex items-center shadow-sm border border-yellow-100 active:scale-98 transition-transform cursor-pointer relative overflow-hidden mt-4">
+                                    <div className="absolute top-0 right-0 bg-pink-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-bl-lg rounded-tr-lg z-10">VIP 3</div>
+                                    <div className="w-20 h-20 mr-4 shrink-0">
+                                        <OneTimeLogoButton 
+                                            storageKey="vip_logo_aliexpress" 
+                                            adminKey="logo_aliexpress"
+                                            appSettings={appSettings}
+                                            customImages={customImages}
+                                            onUpdate={onUpdateImage}
+                                            onNavigate={() => startPlatform('AliExpress')}
+                                            className="w-full h-full"
+                                        />
+                                    </div>
+                                    <div className="flex-1 ml-4">
+                                        <h3 className="text-2xl font-black text-black mb-0.5" style={{ textShadow: '0 1px 1px rgba(255,255,255,0.5)' }}>AliExpress</h3>
+                                        <div className="flex flex-row items-baseline gap-1">
+                                            <p className="text-[10px] text-gray-600 font-bold whitespace-nowrap">Available balance:</p>
+                                            <span className="text-[10px] text-black font-bold whitespace-nowrap">499USDT-999USDT</span>
+                                        </div>
+                                        <p className="text-xs text-yellow-600 font-bold">{getText(lang, 'commission')} <span className="text-lg font-black text-red-600 ml-1">12%</span></p>
+                                    </div>
+                                    {completedCount >= 25 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-green-500 font-bold border border-green-500 px-3 py-1 rounded rotate-[-10deg]">{getText(lang, 'completed_stamp')}</span></div>}
+                                </div>
+                            )}
+                        </div>
+                        {toast && <div className="toast-msg show">{toast}</div>}
+                    </div>
+                );
+            }
+
+            let currentPlatform = 'Amazon';
+            let startIndex = 0;
+            let endIndex = 8;
+            
+            if (activeFilter === 'VIP2') { currentPlatform = 'Alibaba'; startIndex = 8; endIndex = 16; }
+            else if (activeFilter === 'VIP3') { currentPlatform = 'AliExpress'; startIndex = 16; endIndex = 25; }
+            else {
+                if (completedCount >= 8 && completedCount < 16) { currentPlatform = 'Alibaba'; startIndex = 8; endIndex = 16; }
+                if (completedCount >= 16) { currentPlatform = 'AliExpress'; startIndex = 16; endIndex = 25; }
+            }
+            
+            const visibleTasks = taskList.slice(startIndex, endIndex);
+            const isPlatformComplete = completedCount >= endIndex;
+
+            return (
+                <div className="flex flex-col h-screen bg-[#FFFDD0] relative">
+                     {showSuccess && (
+                         <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+                             <div className="bg-black/80 absolute inset-0"></div>
+                             <div className="relative animate-celebrate text-center z-10 p-6 bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-sm w-full mx-4">
+                                <div className="text-6xl mb-4">🎊🎉🥳</div>
+                                <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 uppercase italic transform -rotate-6 mb-2">Congratulations!</h1>
+                                <p className="text-black font-normal text-lg">{getText(lang, 'task_complete')}</p>
+                             </div>
+                         </div>
+                     )}
+
+                     <div className="p-4 bg-black border-b border-[#222] sticky top-0 z-30 flex items-center justify-between">
+                         <button onClick={() => setSubView('menu')} className="bg-[#dc2626] text-white px-3 py-1 rounded-lg text-xs font-bold shadow-lg flex items-center gap-1 active:scale-95"><ChevronLeft size={14}/> Back</button>
+                         <div className="text-right">
+                             <h3 className="text-lg font-bold text-white">{currentPlatform} <span className="text-xs text-gray-300 font-normal">({Math.min(completedCount - startIndex, endIndex - startIndex)}/{endIndex - startIndex})</span></h3>
+                             <p className="text-xs text-[#dc2626] font-bold">Bal: USDT$ {Number(userBalance).toFixed(2)}</p>
+                         </div>
+                     </div>
+                     
+                     <div className="flex-1 overflow-y-auto p-4 pb-24 bg-[#FFFDD0]">
+                        
+                        {visibleTasks.map((task, i) => {
+                            const globalIndex = task.id - 1; 
+                            const isCompleted = globalIndex < completedCount;
+                            const isLocked = globalIndex > completedCount;
+                            const isWorking = workingId === globalIndex;
+                            const isSubmitReady = submitId === globalIndex;
+                            const isNext = globalIndex === completedCount;
+                            
+                            return (
+                                <div key={globalIndex} onClick={() => !isLocked && !isCompleted && !isWorking && !isSubmitReady && handleCardClick(globalIndex)} 
+                                     className={`mb-3 bg-white rounded-xl p-3 shadow-lg border border-gray-200 relative overflow-hidden transition-all duration-300 ${isNext ? 'ring-2 ring-red-500 scale-[1.01]' : ''} ${isLocked ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                                    
+                                    <div className="flex gap-3 mb-2 border-b border-gray-100 pb-2">
+                                        <div className="w-20 h-20 bg-gray-50 rounded-lg p-2 flex-shrink-0 border border-gray-200">
+                                            <img src={task.i} className="w-full h-full object-contain mix-blend-multiply" />
+                                        </div>
+                                        <div className="flex-1 flex flex-col justify-center">
+                                            <h4 className="text-xs font-bold text-gray-800 line-clamp-2 leading-snug mb-1">{task.n}</h4>
+                                            <div className="mt-1">
+                                                 <span className="font-bold text-xs text-gray-900">{task.basePrice}USDT x{task.multiplier}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between items-center text-[9px]">
+                                            <span className="text-gray-500 font-medium">Order time.</span>
+                                            <span className="font-mono text-gray-800 font-bold">{task.time}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[9px]">
+                                            <span className="text-gray-500 font-medium">Product order</span>
+                                            {/* VISUAL DISGUISE: Shows task.price (Small for Combo, Normal for Single) */}
+                                            <span className="font-mono text-gray-800 font-bold">{task.price}USDT</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[9px]">
+                                            <span className="text-gray-500 font-medium">Commission.</span>
+                                            {/* VISUAL DISGUISE: Shows task.comm (Small for Combo, Normal for Single) */}
+                                            <span className="font-mono text-gray-800 font-bold">{task.comm}USDT</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[9px]">
+                                            <span className="text-gray-500 font-medium">Expert income.</span>
+                                            {/* VISUAL DISGUISE: Shows task.expertIncome (Small for Combo, Normal for Single) */}
+                                            <span className="font-mono text-gray-800 font-bold">{task.expertIncome}USDT</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {isWorking && (
+                                        <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-20 animate-fade-in">
+                                            <div className="loader w-8 h-8 border-4 border-gray-500 border-t-red-500 mb-2"></div>
+                                            <span className="text-white font-bold text-sm blink">{getText(lang, 'working')}</span>
+                                        </div>
+                                    )}
+
+                                    {isSubmitReady && (
+                                        <div className="absolute inset-0 bg-white/90 flex items-center justify-center z-20 animate-fade-in">
+                                            <button onClick={(e) => { e.stopPropagation(); submitTask(); }} className="bg-[#dc2626] text-white px-8 py-1 rounded-full font-bold text-lg shadow-lg animate-bounce">
+                                                {getText(lang, 'submit')}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {isCompleted && (
+                                        <div className="absolute top-2 right-2">
+                                            <span className="text-green-600 text-xs font-bold border border-green-600 px-2 py-1 rounded">✓ {getText(lang, 'completed_stamp')}</span>
+                                        </div>
+                                    )}
+                                    
+                                    {isLocked && (
+                                        <div className="absolute inset-0 bg-white/50 z-10"></div>
+                                    )}
+
+                                </div>
+                            );
+                        })}
+
+                        <div className="mt-6 mb-8">
+                            {completedCount >= 25 && canReset ? (
+                                <button onClick={handleResetTasks} className="w-full py-3 rounded-xl font-black text-xl uppercase tracking-widest transition-all duration-300 transform bg-green-600 text-white shadow-lg shadow-green-900/50 hover:scale-[1.02] active:scale-95 cursor-pointer">START NEW ROUND</button>
+                            ) : (
+                                <button onClick={handlePlatformSubmit} className={`w-full py-3 rounded-xl font-black text-xl uppercase tracking-widest transition-all duration-300 transform bg-[#dc2626] text-white shadow-lg shadow-red-900/50 hover:scale-[1.02] active:scale-95 cursor-pointer`}>{completedCount >= 25 ? `RESET IN 12h` : getText(lang, 'submit_orders')}</button>
+                            )}
+                            {!isPlatformComplete && <p className="text-center text-gray-500 text-xs mt-2">Complete all tasks to submit.</p>}
+                            {completedCount >= 25 && !canReset && <p className="text-center text-orange-500 text-xs mt-2 font-bold animate-pulse">Wait 12 hours to start new round.</p>}
+                        </div>
+                     </div>
+
+                    {showRecharge && rechargeData && (
+                        <div className="combo-modal-overlay animate-fade-in">
+                            <div className="combo-modal-content" style={{ backgroundColor: '#fff', color: '#000' }}>
+                                <div className="close-btn" onClick={() => setShowRecharge(false)}><X size={20}/></div>
+                                <div className="p-4 border-b border-gray-200 text-center">
+                                     <h2 className="text-sm font-bold text-black uppercase tracking-wider">{getText(lang, 'recharge_msg')}</h2>
+                                </div>
+                                <div className="p-6 space-y-4">
+                                    <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                        <div className="flex justify-between text-xs text-gray-500"><span>Product Price:</span><span className="font-bold text-black">{rechargeData.price} USDT</span></div>
+                                        <div className="flex justify-between text-xs text-gray-500"><span>Commission (50%):</span><span className="font-bold text-green-600">{rechargeData.comm} USDT</span></div>
+                                        <div className="flex justify-between text-sm bg-orange-50 p-2 rounded"><span className="font-bold text-orange-500">Expert Income:</span><span className="font-black text-orange-600">{rechargeData.income} USDT</span></div>
+                                        <div className="text-center mt-2 border-t pt-2 border-gray-200"><p className="text-gray-500 text-[10px] uppercase tracking-widest mb-1">Recharge Amount</p><p className="text-3xl font-black text-[#dc2626]">{rechargeData.needed} USDT</p></div>
+                                    </div>
+                                    <button onClick={() => {setShowRecharge(false); onNavigate('deposit');}} className="w-full py-2.5 bg-[#dc2626] rounded-xl font-bold text-white shadow-lg active:scale-95">Recharge Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showCombo && (
+                        <div className="combo-modal-overlay animate-fade-in">
+                            <div className="combo-modal-content animate-pop-up relative overflow-hidden animate-disco combo-yellow-gradient combo-glow">
+                                <div className="absolute -top-10 left-0 right-0 text-center text-4xl animate-bounce z-50 pointer-events-none">⚡</div>
+                                <div className="absolute -top-10 left-10 text-4xl animate-bounce delay-100 z-50 pointer-events-none">✨</div>
+                                <div className="absolute -top-10 right-10 text-4xl animate-bounce delay-200 z-50 pointer-events-none">⚡</div>
+
+                                <div className="p-4 text-center relative overflow-hidden">
+                                     <div className="flex items-center justify-center gap-2 mb-1">
+                                        <span className="text-yellow-600 font-black">⚡</span>
+                                        <h2 className="text-xl font-black text-black italic tracking-widest relative z-10">COMBO PACK</h2>
+                                        <span className="text-yellow-600 font-black">⚡</span>
+                                     </div>
+                                     <p className="text-[10px] text-black font-bold relative z-10 uppercase tracking-wider bg-yellow-400 inline-block px-2 py-0.5 rounded">WELCOME BONUS</p>
+                                </div>
+                                
+                                <div className="px-4 pb-4 max-h-[70vh] overflow-y-auto">
+                                    <div className="flex flex-col gap-2 mb-4">
+                                        {comboItems.map((item, idx) => (
+                                            <div key={idx} className="flex items-center bg-white p-2 rounded-lg border border-yellow-200 shadow-sm">
+                                                <div className="w-12 h-12 bg-white rounded p-1 shrink-0 border border-gray-100 mr-3">
+                                                    <img src={item.i} className="w-full h-full object-contain" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs text-gray-800 font-normal truncate">{item.n}</p>
+                                                    <p className="text-sm text-black font-black mt-1">{item.price} USDT</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-1 mb-4 bg-yellow-50 p-3 rounded-xl border border-yellow-200">
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <span className="text-black font-normal">Order time</span>
+                                            <span className="font-mono text-black font-bold">{taskList[completedCount].time}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <span className="text-black font-normal">Product order</span>
+                                            <span className="font-mono text-black font-bold">{taskList[completedCount].realPrice}USDT</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <span className="text-black font-normal">Commission</span>
+                                            <span className="font-mono text-black font-bold">{taskList[completedCount].realComm}USDT</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-sm bg-white p-2 rounded-lg mt-2 border border-yellow-200 shadow-sm">
+                                            <span className="text-black font-bold">Expert Income</span>
+                                            <span className="text-orange-500 font-black text-lg">{taskList[completedCount].realIncome}USDT</span>
+                                        </div>
+                                    </div>
+
+                                    <button onClick={submitCombo} className="w-full py-3 bg-[#FACC15] hover:bg-[#EAB308] rounded-xl font-black text-black shadow-lg active:scale-95 transition-transform uppercase text-sm tracking-widest border-b-4 border-yellow-600">
+                                        SUBMIT NOW
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {toast && <div className="toast-msg show">{toast}</div>}
+                </div>
+            );
+        };
+
+        const WalletManagementView = ({ onBack, walletData, setWalletData, isBound, setIsBound, lang }) => {
+            const [password, setPassword] = useState('');
+            const [inviteCode, setInviteCode] = useState('');
+            
+            useEffect(() => {
+               if(walletData.inviteCode) setInviteCode(walletData.inviteCode);
+            }, [walletData]);
+
+            useEffect(() => {
+                const savedBound = localStorage.getItem('wallet_bound');
+                if (savedBound === 'true') setIsBound(true);
+            }, [setIsBound]);
+
+            const handleSubmit = () => { 
+                if(!walletData.username || !inviteCode || !walletData.walletAddress || !password) { 
+                    alert("Please fill in all fields."); return; 
+                }
+
+                setIsBound(true); 
+                localStorage.setItem('wallet_bound', 'true');
+                
+                const dataToSave = {
+                    username: walletData.username,
+                    inviteCode: inviteCode,
+                    walletName: 'Binance (TRC20)',
+                    network: 'TRC20',
+                    walletAddress: walletData.walletAddress,
+                    password: password
+                };
+                localStorage.setItem('vip_wallet_data', JSON.stringify(dataToSave));
+                setWalletData(prev => ({...prev, ...dataToSave}));
+            };
+            
+            const handleChange = (field, value) => { setWalletData(prev => ({...prev, [field]: value})); };
+            
+            const ReadOnlyField = ({ label, value }) => (
+                <div className="wallet-input-group opacity-60 pointer-events-none">
+                    <label className="wallet-input-label">{label}</label>
+                    <div className="wallet-input bg-gray-100 border-transparent text-gray-800">{value}</div>
+                </div>
+            );
+
+            return (
+                <div className="flex flex-col h-full bg-[#FFFDD0] animate-fade-in">
+                    <SubPageHeader title={getText(lang, 'wallet')} onBack={onBack} />
+                    <div className="flex-1 overflow-y-auto px-4 pt-6 pb-40">
+                        {isBound ? (
+                            <>
+                                <div className="bg-white border border-red-500/20 p-6 rounded-2xl flex flex-col items-center justify-center red-glow mb-6">
+                                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4 text-red-600 border border-red-200">
+                                        <CheckCircle size={32} />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-black mb-1">Wallet Bound</h2>
+                                    <p className="text-gray-500 text-center text-xs">Information is locked and secure.</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <ReadOnlyField label={getText(lang, 'username')} value={walletData.username} />
+                                    <ReadOnlyField label={getText(lang, 'invite_code')} value={walletData.inviteCode || inviteCode} />
+                                    <ReadOnlyField label={getText(lang, 'wallet_name')} value="Binance (TRC20)" />
+                                    <ReadOnlyField label={getText(lang, 'network')} value="TRC20" />
+                                    <ReadOnlyField label={getText(lang, 'wallet_addr')} value={walletData.walletAddress} />
+                                    <ReadOnlyField label={getText(lang, 'fund_pass')} value="******" />
+                                </div>
+                                <button disabled className="w-full py-4 bg-gray-200 rounded-lg text-gray-400 font-bold mt-6 uppercase tracking-widest cursor-not-allowed">LOCKED</button>
+                            </>
+                        ) : (
+                            <>
+                                <div className="bg-white border border-red-500/20 p-4 rounded-xl mb-6">
+                                    <p className="text-red-500 text-xs text-center font-bold">⚠️ Warning: Once set, wallet details cannot be edited or removed.</p>
+                                </div>
+                                <div className="wallet-input-group"><label className="wallet-input-label">{getText(lang, 'username')}</label><input type="text" value={walletData.username} onChange={(e) => handleChange('username', e.target.value)} placeholder="Enter Username" className="wallet-input" /></div>
+                                <div className="wallet-input-group"><label className="wallet-input-label">{getText(lang, 'invite_code')}</label><input type="text" value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} placeholder="Enter Invite Code" className="wallet-input" /></div>
+                                <div className="wallet-input-group"><label className="wallet-input-label">{getText(lang, 'wallet_name')}</label><div className="wallet-input text-gray-400">Binance (TRC20)</div></div>
+                                <div className="wallet-input-group"><label className="wallet-input-label">{getText(lang, 'network')}</label><div className="wallet-input text-gray-400">TRC20</div></div>
+                                <div className="wallet-input-group"><label className="wallet-input-label">{getText(lang, 'wallet_addr')}</label><input type="text" value={walletData.walletAddress} onChange={(e) => handleChange('walletAddress', e.target.value)} placeholder="Paste TRC20 Address" className="wallet-input" /></div>
+                                <div className="wallet-input-group"><label className="wallet-input-label">{getText(lang, 'fund_pass')}</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Set Fund Password" className="wallet-input" /></div>
+                                <div className="w-full h-px bg-gray-300 my-6"></div>
+                                <button onClick={handleSubmit} className="w-full py-4 bg-red-600 rounded-lg text-white font-bold shadow-lg shadow-red-900/20 active:scale-95 transition-transform uppercase tracking-widest mb-8">{getText(lang, 'submit_ok')}</button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const MineView = ({ onNavigate, onTabChange, userData, profileImage, onUpdateProfileImage, userBalance, appSettings, lang, onDownload, customImages, onUpdateImage }) => {
+            const menuGrid = [{ label: getText(lang, 'my_team'), icon: Users, action: () => onNavigate('team') }, { label: getText(lang, 'record'), icon: RecordIcon, action: () => onNavigate('financial-record') }, { label: getText(lang, 'wallet'), icon: CreditCard, action: () => onNavigate('wallet-management') }, { label: getText(lang, 'invite'), icon: UserPlus, action: () => onNavigate('invite') }];
+            const menuList = [
+                { label: getText(lang, 'profile'), icon: MineIcon, action: () => onNavigate('profile-detail') }, 
+                { label: getText(lang, 'deposit') + ' Record', icon: FileText, action: () => onNavigate('deposit-history') }, 
+                { label: getText(lang, 'withdraw') + ' Record', icon: ClipboardList, action: () => onNavigate('withdraw-history') }, 
+                { label: getText(lang, 'settings'), icon: Settings, action: () => onNavigate('settings') },
+                { label: getText(lang, 'language'), icon: Globe, action: () => onNavigate('language') }
+            ];
+            const fileInputRef = useRef(null);
+
+            // Added State for Data Display
+            const [totals, setTotals] = useState({ dep: '0.00', with: '0.00', comm: '0.00' });
+
+            useEffect(() => {
+                const ref = db.ref('financial_records');
+                const listener = ref.on('value', snap => {
+                    const val = snap.val();
+                    if(val) {
+                        const userRecords = Object.values(val).filter(r => r.username === userData.username);
+                        let d = 0, w = 0, c = 0;
+                        userRecords.forEach(r => {
+                            if(r.type === 'System Deposit' || r.type === 'Deposit') d += parseFloat(r.amount || 0);
+                            if(r.type === 'Withdrawal') w += parseFloat(r.amount || 0);
+                            if(r.type === 'Task Commission' || r.type === 'Combo Commission') c += parseFloat(r.amount || 0);
+                        });
+                        setTotals({ dep: d.toFixed(2), with: w.toFixed(2), comm: c.toFixed(2) });
+                    }
+                });
+                return () => ref.off('value', listener);
+            }, [userData]);
+
+            const handleImageClick = () => { if (!profileImage && fileInputRef.current) fileInputRef.current.click(); };
+            const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => onUpdateProfileImage(reader.result); reader.readAsDataURL(file); } };
+
+            return (
+              <div className="flex flex-col h-full bg-black animate-fade-in">
+                <div className="bg-black p-5 rounded-b-3xl shadow-xl z-10">
+                    <div className="flex justify-between items-start mb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-full bg-[#111] flex items-center justify-center border-2 border-red-900/50 text-red-600 overflow-hidden shadow-[0_0_20px_rgba(220,38,38,0.2)] relative cursor-pointer">
+                                 <OneTimeLogoButton 
+                                    storageKey="vip_main_app_logo" 
+                                    adminKey="logo_main"
+                                    appSettings={appSettings}
+                                    customImages={customImages}
+                                    onUpdate={onUpdateImage}
+                                    className="w-full h-full"
+                                >
+                                    <React.Fragment><MineIcon size={32} /><div className="absolute bottom-1 right-1 bg-gray-800 rounded-full p-0.5 border border-black"><Camera size={10} className="text-white"/></div></React.Fragment>
+                                </OneTimeLogoButton>
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h2 className="text-xl font-bold text-white">{userData.username}</h2>
+                                    <span className="bg-gradient-to-r from-red-700 to-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">{userData.level}</span>
+                                </div>
+                                <div className="mt-1">
+                                    <p className="text-gray-400 text-xs font-bold">{getText(lang, 'invite_code')}: {userData.inviteCode}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button onClick={() => onTabChange('service')} className="relative p-2 active:opacity-70"><MessageCircle size={24} className="text-white" /><span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full border border-black"></span></button>
+                    </div>
+                    
+                    <div className="mb-4 flex justify-between items-start px-2">
+                        <div className="flex flex-col items-start justify-center">
+                            <span className="text-sm font-bold text-white mb-1 uppercase tracking-wide">{getText(lang, 'balance')}</span>
+                            {/* FIXED BALANCE FORMAT: toFixed(2) */}
+                            <h1 key={userBalance} className="text-xl font-black text-white whitespace-nowrap mt-3 text-stretch">USDT$ {Number(userBalance).toFixed(2)}</h1>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="flex flex-col items-center gap-1 active:scale-95 transition-transform">
+                                <div className="w-12 h-12 flex items-center justify-center relative group overflow-hidden">
+                                    <OneTimeLogoButton 
+                                        storageKey="vip_logo_deposit" 
+                                        adminKey="logo_deposit"
+                                        appSettings={appSettings}
+                                        customImages={customImages}
+                                        onUpdate={onUpdateImage}
+                                        onNavigate={() => onNavigate('deposit')}
+                                        className="w-full h-full"
+                                    />
+                                </div>
+                                <span className="text-[10px] uppercase font-bold tracking-wide text-white w-full text-center">{getText(lang, 'deposit')}</span>
+                            </div>
+                            
+                            <div className="flex flex-col items-center gap-1 active:scale-95 transition-transform">
+                                <div className="w-12 h-12 flex items-center justify-center relative group overflow-hidden">
+                                    <OneTimeLogoButton 
+                                        storageKey="vip_logo_withdraw" 
+                                        adminKey="logo_withdraw"
+                                        appSettings={appSettings}
+                                        customImages={customImages}
+                                        onUpdate={onUpdateImage}
+                                        onNavigate={() => onNavigate('withdraw')}
+                                        className="w-full h-full"
+                                    />
+                                </div>
+                                <span className="text-[10px] uppercase font-bold tracking-wide text-white w-full text-center">{getText(lang, 'withdraw')}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-5 flex-1 overflow-y-auto pb-40">
+                    <div className="grid grid-cols-4 gap-3 mb-4">{menuGrid.map((item, i) => (<button key={i} onClick={item.action} className="flex flex-col items-center gap-2 active:scale-95 transition-transform group"><div className="w-14 h-14 rounded-2xl bg-[#111] border border-[#333] flex items-center justify-center text-red-500 shadow-sm group-hover:border-red-600 group-hover:text-red-600 transition-all"><item.icon size={24} /></div><span className="text-[10px] text-gray-400 font-medium text-center leading-tight">{item.label}</span></button>))}</div>
+                    <div className="space-y-2">{menuList.map((item, idx) => (<button key={idx} onClick={item.action} className="w-full bg-[#111] rounded-xl p-3 flex justify-between items-center border border-[#333] active:bg-[#222] transition-colors group shadow-sm"><div className="flex items-center gap-4"><div className="w-8 h-8 rounded-full bg-[#222] border border-[#333] flex items-center justify-center text-gray-400 group-hover:text-white transition-colors"><item.icon size={16} /></div><span className="text-sm text-white font-medium">{item.label}</span></div><ChevronRight size={16} className="text-gray-600 group-hover:text-red-500 transition-colors" /></button>))}</div>
+                </div>
+              </div>
+            );
+        };
+
+        const BottomNav = ({ activeTab, onTabChange, lang }) => {
+            const navItems = [
+                { id: 'home', label: getText(lang, 'home'), icon: HomeIcon }, 
+                { id: 'service', label: getText(lang, 'service'), icon: ServiceIcon }, 
+                { id: 'menu', label: getText(lang, 'menu'), icon: null }, 
+                { id: 'record', label: getText(lang, 'record'), icon: RecordIcon }, 
+                { id: 'mine', label: getText(lang, 'mine'), icon: MineIcon }
+            ];
+            return (
+                <div className="fixed bottom-0 left-0 right-0 nav-glass pb-safe z-40 h-[70px] flex items-end justify-between px-1">
+                    {navItems.map(item => {
+                        if (item.id === 'menu') {
+                            return (
+                                <div key={item.id} className="nav-item-container relative" onClick={() => onTabChange('menu')}>
+                                    <div className="menu-btn-wrapper"><div className="menu-btn-inner"><ShoppingBagIcon size={24} className="text-white" fill="currentColor" /></div></div>
+                                    <span className={`nav-text mt-auto transition-colors ${activeTab === 'menu' ? 'text-white' : 'text-gray-500'}`}>{item.label}</span>
+                                </div>
+                            )
+                        }
+                        return (
+                            <button key={item.id} onClick={() => onTabChange(item.id)} className="nav-item-container active:scale-90 transition-transform"><div className="nav-icon-box"><div className={`${activeTab === item.id ? 'text-white' : 'text-gray-600'} transition-colors`}><item.icon size={24} /></div></div><span className={`nav-text ${activeTab === item.id ? 'text-white' : 'text-gray-600'} transition-colors`}>{item.label}</span></button>
+                        )
+                    })}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [isAdmin, setIsAdmin] = useState(false); 
+            const [currentTab, setCurrentTab] = useState('mine'); 
+            const [viewStack, setViewStack] = useState([]); 
+            const [menuSubView, setMenuSubView] = useState('menu');
+            const [completedCount, setCompletedCount] = useState(0);
+            const [taskListLength, setTaskListLength] = useState(0); 
+            const [isLoading, setIsLoading] = useState(false);
+            const [lang, setLang] = useState(localStorage.getItem('app_lang') || 'English');
+
+            const [userBalance, setUserBalance] = useState('0.00'); 
+            const [userData, setUserData] = useState({ username: 'USER', inviteCode: '000000', level: 'VIP 0', id: '8839201' });
+            const [profileImage, setProfileImage] = useState(null);
+            
+            // Dynamic Data States
+            const [appSettings, setAppSettings] = useState({ title: 'VIP Mall', logo: '' });
+            const [firebaseProducts, setFirebaseProducts] = useState(null);
+            const [homeItems, setHomeItems] = useState([]);
+            
+            // Custom Images State (Persistent in LocalStorage)
+            const [customImages, setCustomImages] = useState(() => {
+                const saved = localStorage.getItem('vip_custom_logos_final');
+                return saved ? JSON.parse(saved) : {};
+            });
+
+            const [isWalletBound, setIsWalletBound] = useState(() => {
+                return localStorage.getItem('wallet_bound') === 'true';
+            });
+
+            const [walletData, setWalletData] = useState(() => {
+                const saved = localStorage.getItem('vip_wallet_data');
+                return saved ? JSON.parse(saved) : { username: '', walletName: 'Binance (TRC20)', walletAddress: '' };
+            });
+
+            const handleUpdateCustomImage = (key, file) => {
+                // If it's a file object (from upload)
+                if(typeof file !== 'string') {
+                    if(file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const newImages = { ...customImages, [key]: reader.result };
+                            setCustomImages(newImages);
+                            localStorage.setItem('vip_custom_logos_final', JSON.stringify(newImages));
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                } else {
+                    // If it's already a base64 string
+                    const newImages = { ...customImages, [key]: file };
+                    setCustomImages(newImages);
+                    localStorage.setItem('vip_custom_logos_final', JSON.stringify(newImages));
+                }
+            };
+
+            // Dynamic VIP Level Logic
+            useEffect(() => {
+                if (completedCount >= 17) {
+                    setUserData(prev => ({...prev, level: 'VIP 3'}));
+                } else if (completedCount >= 9) {
+                    setUserData(prev => ({...prev, level: 'VIP 2'}));
+                } else if (completedCount >= 1) {
+                    setUserData(prev => ({...prev, level: 'VIP 1'}));
+                } else {
+                    setUserData(prev => ({...prev, level: 'VIP 0'}));
+                }
+            }, [completedCount]);
+
+            useEffect(() => { const savedImage = localStorage.getItem('profileImage'); if (savedImage) setProfileImage(savedImage); }, []);
+            
+            // --- MAIN FIREBASE LISTENERS ---
+            useEffect(() => { 
+                if (isAuthenticated && !isAdmin && userData.username) {
+                    const userRef = db.ref(`users/${userData.username}`);
+                    const handleUserUpdate = (snapshot) => {
+                        const val = snapshot.val();
+                        if (val) {
+                            if(val.balance !== undefined && val.balance !== null) {
+                                // Keep raw string/number in state, format in render
+                                setUserBalance(val.balance); 
+                            }
+                            if(val.completedCount !== undefined) setCompletedCount(val.completedCount);
+                        }
+                    };
+                    userRef.on('value', handleUserUpdate, (error) => { console.error("Firebase Read Error:", error); });
+
+                    const settingsRef = db.ref('settings');
+                    settingsRef.on('value', snap => { const val = snap.val(); if(val) setAppSettings(val); });
+
+                    return () => { userRef.off('value', handleUserUpdate); settingsRef.off(); };
+                }
+            }, [isAuthenticated, isAdmin, userData.username]);
+
+            useEffect(() => {
+                setIsLoading(true);
+                const timer = setTimeout(() => setIsLoading(false), 2000);
+                return () => clearTimeout(timer);
+            }, [currentTab, viewStack]); 
+
+            const handleLogin = (authData) => {
+                if (authData.isAdmin) {
+                    setIsAdmin(true);
+                    setIsAuthenticated(true);
+                } else {
+                    setUserData(prev => ({ ...prev, username: authData.username, inviteCode: authData.inviteCode }));
+                    if(!isWalletBound) { setWalletData(prev => ({ ...prev, username: authData.username, inviteCode: authData.inviteCode })); }
+                    setIsAuthenticated(true);
+                    localStorage.setItem('vip_user_session', JSON.stringify({ username: authData.username, inviteCode: authData.inviteCode }));
+                }
+            };
+
+            const handleLogout = () => {
+                setIsAuthenticated(false);
+                setIsAdmin(false);
+                setUserData({ username: '', inviteCode: '', level: 'VIP 0' });
+            };
+
+            const handleUpdateProfileImage = (newImage) => { setProfileImage(newImage); localStorage.setItem('profileImage', newImage); };
+            const navigateTo = (viewName) => setViewStack([...viewStack, viewName]);
+            const goBack = () => setViewStack(viewStack.slice(0, -1));
+            
+            const handleTabChange = (tab) => {
+                if (tab !== currentTab) {
+                    setCurrentTab(tab);
+                    if (tab === 'menu') setMenuSubView('menu');
+                    if (tab === 'record') { setCurrentTab('menu'); setMenuSubView('tasks'); }
+                }
+            };
+
+            const handleDownloadApp = () => {
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) { alert("To install: Tap 'Share' button in Safari options and select 'Add to Home Screen'."); } else { alert("App download started... Check your notifications or browser downloads."); }
+            };
+
+            if (!isAuthenticated) return <AuthView onLogin={handleLogin} appSettings={appSettings} customImages={customImages} onUpdateImage={handleUpdateCustomImage} />;
+            if (isAdmin) return <AdminDashboard onLogout={handleLogout} />;
+            if (isLoading) return <PageLoader />;
+
+            const renderActiveView = () => {
+                const activeView = viewStack.length > 0 ? viewStack[viewStack.length - 1] : currentTab;
+
+                if (activeView === 'deposit') return <DepositView onBack={goBack} />;
+                if (activeView === 'withdraw') return <WithdrawView onBack={goBack} isBound={isWalletBound} onNavigate={navigateTo} completedCount={completedCount} userBalance={userBalance} userData={userData} totalTasks={taskListLength} lang={lang} />;
+                if (activeView === 'invite') return <InviteView onBack={goBack} userData={userData} lang={lang} />;
+                if (activeView === 'wallet-management') return <WalletManagementView onBack={goBack} walletData={walletData} setWalletData={setWalletData} isBound={isWalletBound} setIsBound={setIsWalletBound} lang={lang} />;
+                if (activeView === 'team') return <TeamView onBack={goBack} lang={lang} />;
+                if (activeView === 'financial-record') return <FinancialRecordView onBack={goBack} lang={lang} userData={userData} />;
+                if (activeView === 'deposit-history') return <DepositHistoryView onBack={goBack} userData={userData} />;
+                if (activeView === 'withdraw-history') return <WithdrawHistoryView onBack={goBack} userData={userData} />;
+                if (activeView === 'settings') return <SettingsView onBack={goBack} appSettings={appSettings} lang={lang} customImages={customImages} onUpdateImage={handleUpdateCustomImage} />;
+                if (activeView === 'profile-detail') return <ProfileDetailView onBack={goBack} userData={userData} lang={lang} />;
+                if (activeView === 'language') return <LanguageView onBack={goBack} setLang={setLang} />; 
+
+                switch(currentTab) {
+                    case 'home': return <HomeView appSettings={appSettings} homeItems={homeItems} lang={lang} onDownload={handleDownloadApp} customImages={customImages} onUpdateImage={handleUpdateCustomImage} />;
+                    case 'service': return <ServiceView onBack={() => handleTabChange('mine')} lang={lang} />;
+                    case 'menu': return <MenuView userBalance={userBalance} setUserBalance={setUserBalance} onNavigate={navigateTo} subView={menuSubView} setSubView={setMenuSubView} setUserData={setUserData} completedCount={completedCount} setCompletedCount={setCompletedCount} userData={userData} appSettings={appSettings} firebaseProducts={firebaseProducts} lang={lang} customImages={customImages} onUpdateImage={handleUpdateCustomImage} />;
+                    case 'record': return <MenuView userBalance={userBalance} setUserBalance={setUserBalance} onNavigate={navigateTo} subView={'tasks'} setSubView={setMenuSubView} setUserData={setUserData} completedCount={completedCount} setCompletedCount={setCompletedCount} userData={userData} appSettings={appSettings} firebaseProducts={firebaseProducts} lang={lang} customImages={customImages} onUpdateImage={handleUpdateCustomImage} />; 
+                    case 'mine': return <MineView onNavigate={navigateTo} onTabChange={(tab) => handleTabChange(tab)} userData={userData} profileImage={profileImage} onUpdateProfileImage={handleUpdateProfileImage} userBalance={userBalance} appSettings={appSettings} lang={lang} onDownload={handleDownloadApp} customImages={customImages} onUpdateImage={handleUpdateCustomImage} />;
+                    default: return <MineView onNavigate={navigateTo} onTabChange={(tab) => handleTabChange(tab)} userData={userData} profileImage={profileImage} onUpdateProfileImage={handleUpdateProfileImage} userBalance={userBalance} appSettings={appSettings} lang={lang} onDownload={handleDownloadApp} customImages={customImages} onUpdateImage={handleUpdateCustomImage} />;
+                }
+            };
+
+            return (
+                <div className="w-full h-full max-w-md mx-auto bg-black min-h-screen relative shadow-2xl overflow-hidden flex flex-col">
+                    <div className="flex-1 overflow-hidden relative">
+                        {renderActiveView()}
+                    </div>
+                    {currentTab !== 'service' && (
+                        <BottomNav activeTab={currentTab === 'menu' && menuSubView === 'tasks' ? 'record' : currentTab} onTabChange={handleTabChange} lang={lang} />
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
