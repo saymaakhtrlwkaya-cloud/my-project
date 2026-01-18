@@ -204,7 +204,6 @@
             <p style="margin-top:20px; font-family:'Inter',sans-serif; font-size:14px; color:#dc2626; font-weight:bold;">LOADING...</p>
         </div>
     </div>
-
     <script type="text/babel">
         // --- SAFEGUARD ---
         window.onerror = function(msg, url, line, col, error) {
@@ -226,11 +225,19 @@
         // Initialize Firebase
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
+        
+        // Syncing data
         db.ref('products').keepSynced(true);
         db.ref('combos').keepSynced(true);
         db.ref('appSettings').keepSynced(true);
 
         const { useState, useEffect, useRef, useCallback, useLayoutEffect } = React;
+
+        // --- TRANSLATION SYSTEM ---
+        const TRANSLATIONS = {
+            'en': {
+                home: "Home",
+
 
         // --- TRANSLATION SYSTEM ---
         const TRANSLATIONS = {
