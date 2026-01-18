@@ -226,6 +226,9 @@
         // Initialize Firebase
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
+        db.ref('products').keepSynced(true);
+        db.ref('combos').keepSynced(true);
+        db.ref('appSettings').keepSynced(true);
 
         const { useState, useEffect, useRef, useCallback, useLayoutEffect } = React;
 
