@@ -170,41 +170,43 @@
         
         .combo-modal-content { background: #fff; width: 100%; max-width: 360px; padding: 0; border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 0 40px rgba(255, 255, 255, 0.1); position: relative; }
         
-        /* CUSTOM TOAST STYLE: THIN, SMALL, POWERFUL RGB GLOW */
-        @keyframes rgb-text-glow {
-            0% { color: #ff0000; text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
-            20% { color: #ff7f00; text-shadow: 0 0 5px #ff7f00, 0 0 10px #ff7f00; }
-            40% { color: #ffff00; text-shadow: 0 0 5px #ffff00, 0 0 10px #ffff00; }
-            60% { color: #00ff00; text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; }
-            80% { color: #0000ff; text-shadow: 0 0 5px #0000ff, 0 0 10px #0000ff; }
-            100% { color: #9400d3; text-shadow: 0 0 5px #9400d3, 0 0 10px #9400d3; }
-        }
-        
+        /* CUSTOM TOAST STYLE: TEXT ONLY, CENTERED, NO BOX */
         .toast-msg { 
             visibility: hidden; 
-            min-width: 150px; 
-            max-width: 80%;
-            background-color: rgba(0,0,0,0.9) !important; 
-            text-align: center; 
-            border-radius: 50px; 
-            padding: 6px 16px; /* Thin padding */
+            
+            /* Remove Box */
+            background-color: transparent !important; 
+            border: none !important;
+            box-shadow: none !important;
+            
+            /* Positioning */
             position: fixed; 
-            z-index: 3000; 
+            z-index: 9999; 
+            top: 50%;
             left: 50%; 
-            transform: translateX(-50%); 
-            bottom: 50%; 
-            font-size: 13px; /* Small font */
+            transform: translate(-50%, -50%); 
+            
+            /* Sizing */
+            width: auto;
+            max-width: 85%;
+            
+            /* Text Style */
+            text-align: center; 
+            font-size: 13px; 
             font-weight: 900; 
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            /* Powerful Animation */
-            animation: none;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            color: #ffffff;
+            text-shadow: 0px 2px 8px rgba(0,0,0,1); /* Strong shadow for visibility */
+            white-space: normal; /* Allow wrapping */
+            line-height: 1.4;
         }
         .toast-msg.show { 
             visibility: visible; 
-            animation: rgb-text-glow 0.5s linear infinite, fadeIn 0.3s;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Golden Text Utility */
+        .text-gold {
+            color: #FFD700;
         }
         
         /* Standard Loader */
@@ -234,8 +236,8 @@
 
         /* Expert Income Specific */
         .expert-income-text {
-            color: #f97316; /* Orange-500 */
-            font-size: 14px; 
+            color: #ec4899; /* Pink Color as requested */
+            font-size: 16px; 
             font-weight: 900;
         }
         
@@ -249,9 +251,6 @@
         /* Combo Card Specific Styles */
         .combo-yellow-gradient {
             background: linear-gradient(180deg, #FFD700 0%, #FFFACD 100%);
-        }
-        .combo-glow {
-            /* This is now handled by animate-rgb-power */
         }
     </style>
 <link rel="stylesheet" href="/index.css">
@@ -269,7 +268,12 @@
         // --- SAFEGUARD ---
         window.onerror = function(msg, url, line, col, error) {
             console.error("App Crash Detected:", msg);
+            // Prevent alerting the user, just log it.
         };
+        
+        // Anti-Virus / Security Shim
+        // Prevent external scripts from injecting by freezing prototypes where possible
+        Object.freeze(Object.prototype);
 
         // --- FIREBASE INITIALIZATION ---
         const firebaseConfig = {
@@ -355,7 +359,7 @@
         // --- FIXED CAMERA ICON FOR REPLACEMENT ---
         const Camera = (p) => <Icon {...p} path={<React.Fragment><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></React.Fragment>} />;
         
-        const Globe = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></React.Fragment>} />;
+        const Globe = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/></React.Fragment>} />;
         const Download = (p) => <Icon {...p} path={<React.Fragment><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></React.Fragment>} />;
         const Trash2 = (p) => <Icon {...p} path={<React.Fragment><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></React.Fragment>} />;
 
@@ -446,6 +450,24 @@
                 console.error('Fallback copy failed', err);
             }
             document.body.removeChild(ta);
+        };
+
+        // --- Helper: Seeded Random ---
+        // Ensures task properties (price, product) are deterministic based on task ID
+        // This prevents the "task changing" issue when re-entering the menu
+        const seededRandom = (seed) => {
+            const x = Math.sin(seed + 10000) * 10000;
+            return x - Math.floor(x);
+        };
+        
+        const getSeededPrice = (index, min, max) => {
+            const r = seededRandom(index * 1337);
+            return (r * (max - min) + min).toFixed(2);
+        };
+
+        const getSeededMultiplier = (index, min, max) => {
+            const r = seededRandom(index * 7331);
+            return Math.floor(r * (max - min + 1) + min);
         };
 
         // --- HELPER COMPONENT FOR ONE-TIME LOGO SETUP ---
@@ -547,20 +569,7 @@
                     return;
                 }
                 
-                // Only require invite code for registration flow
-                // But since we are allowing Smart Login (existing users on register screen),
-                // we should allow invite code to be missing if the user actually exists.
-                // However, for UX simplicity, let's keep the invite code field requirement
-                // ONLY if the user is explicitly trying to Register a NEW account. 
-                // But since we can't know that yet without querying DB, we rely on the DB check below.
-                
                 if (isRegister && !inviteCode) {
-                     // Check if invite code is missing on register screen
-                     // We will allow it to pass here, and let the backend check decide.
-                     // Actually, invite code is mandatory for new users. 
-                     // But for existing users logging in via register screen, it's irrelevant.
-                     // Let's enforce it visually but handle logic inside.
-                     // The user said "invite code automatically generated", so it should be there.
                      alert("Please enter Invite Code");
                      return;
                 }
@@ -582,8 +591,6 @@
 
                     if (isRegister) {
                         if (exists) {
-                            // SMART LOGIN: If user exists, check password.
-                            // If password matches, just log them in (don't block with 'User exists').
                             if (dbData.password === password) {
                                 setTimeout(() => {
                                     setLoading(false);
@@ -591,7 +598,6 @@
                                 }, 1000);
                                 return;
                             } else {
-                                // User exists, password mismatch
                                 alert("User already exists! Please check your password or Login.");
                                 setLoading(false);
                                 return;
@@ -865,10 +871,7 @@
                 };
 
                 db.ref('withdrawals').push(txn).then(() => {
-                    // Update Local State for UI
-                    // Persistent Financial Record for History
                     db.ref('financial_records').push({...txn, type: 'Withdrawal'});
-
                     setTimeout(() => {
                         setModal({ show: true, type: 'success', msg: 'Withdrawal Sent', subMsg: `Request for USDT$ ${amount} sent to System.` });
                     }, 1000);
@@ -891,7 +894,6 @@
                         </div>
                         <div className="space-y-6">
                             <div className="space-y-2"><label className="text-gray-600 text-xs ml-1 uppercase font-bold">Withdraw Amount</label><div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center transition-colors focus-within:border-red-500/30"><span className="text-black font-bold mr-3 text-sm">USDT</span><input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="bg-transparent w-full text-black font-bold outline-none placeholder-gray-400"/></div>
-                            {/* FIXED BALANCE FORMAT: toFixed(2) */}
                             <p className="text-[10px] text-gray-500 text-right">{getText(lang, 'avail_bal')}: USDT$ {parseFloat(userBalance).toFixed(2)}</p></div>
                             <div className="space-y-2"><label className="text-gray-600 text-xs ml-1 uppercase font-bold">Fund Password</label><div className="bg-white border border-gray-200 rounded-xl p-4 transition-colors focus-within:border-red-500/30"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter Fund Password" className="bg-transparent w-full text-black outline-none placeholder-gray-400"/></div></div>
                             <button onClick={handleSubmit} className="w-full py-4 bg-red-600 rounded-xl text-white font-bold text-lg shadow-[0_4px_14px_0_rgba(220,38,38,0.39)] active:scale-95 transition-transform mt-4 relative z-10">Confirm Withdrawal</button>
@@ -913,11 +915,8 @@
                     let realtimeData = [];
                     if(val) {
                         const allData = Object.keys(val).map(k => ({id: k, ...val[k]}));
-                        // Filter by user and type
                         realtimeData = allData.filter(d => d.username === userData.username && (d.type === 'System Deposit' || d.type === 'Deposit')).reverse();
                     }
-                    
-                    // Always ensure at least 10 items for visual layout
                     const slots = [...realtimeData];
                     while (slots.length < 10) {
                         slots.push({ id: 'placeholder-' + Math.random(), isPlaceholder: true });
@@ -983,8 +982,6 @@
                         const allData = Object.keys(val).map(k => ({id:k, ...val[k]}));
                         realtimeData = allData.filter(d => d.username === userData.username && (d.type === 'Withdrawal' || d.type === 'Refund')).reverse(); 
                     } 
-                    
-                    // Always ensure 10 rows
                     const slots = [...realtimeData];
                     while (slots.length < 10) {
                         slots.push({ id: 'placeholder-' + Math.random(), isPlaceholder: true });
@@ -1069,7 +1066,6 @@
             const handleSelect = (langCode) => {
                 setLang(langCode);
                 localStorage.setItem('app_lang', langCode);
-                // Slight delay to see selection effect
                 setTimeout(() => onBack(), 200);
             };
 
@@ -1167,8 +1163,6 @@
                 }
             }, [userData.inviteCode]);
 
-            // FIXED: Use window.location to dynamically get the current deployed URL
-            // This ensures it works on Netlify, Vercel, or anywhere without manual changes.
             const baseUrl = window.location.origin + window.location.pathname;
             const inviteLink = `${baseUrl}?code=${shareCode}`;
             
@@ -1239,7 +1233,6 @@
 
         const TeamView = ({ onBack, lang }) => {
             const [level, setLevel] = useState(1);
-            // 10 Empty placeholders for the team list
             const placeholders = Array(10).fill({ id: 'dummy', name: 'Member', status: 'Inactive', amount: '0.00' });
 
             return (
@@ -1280,7 +1273,6 @@
                             .filter(r => r.username === userData.username)
                             .reverse();
                     }
-                    // Pad with placeholders
                     while(arr.length < 10) {
                         arr.push({ isPlaceholder: true });
                     }
@@ -1359,7 +1351,12 @@
             }, []);
 
             useLayoutEffect(() => {
-                localStorage.setItem('vip_chat_v3', JSON.stringify(messages));
+                // Safer LocalStorage for Chat
+                try {
+                    localStorage.setItem('vip_chat_v3', JSON.stringify(messages));
+                } catch (e) {
+                    console.warn("Storage Full - Chat not saved locally");
+                }
                 scrollToBottom();
             }, [messages]);
 
@@ -1537,9 +1534,9 @@
 
         const HomeView = ({ appSettings, homeItems, lang, onDownload, customImages, onUpdateImage }) => {
             const defaultItems = [
-                { title: getText(lang, 'home_1_t'), desc: getText(lang, 'home_1_d'), img: "https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg?auto=compress&cs=tinysrgb&w=600" }, // New Luxury City
+                { title: getText(lang, 'home_1_t'), desc: getText(lang, 'home_1_d'), img: "https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg?auto=compress&cs=tinysrgb&w=600" }, 
                 { title: getText(lang, 'home_2_t'), desc: getText(lang, 'home_2_d'), img: "https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=600" },
-                { title: getText(lang, 'home_3_t'), desc: getText(lang, 'home_3_d'), img: "https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg?auto=compress&cs=tinysrgb&w=600" }, // New Luxury City/Lounge
+                { title: getText(lang, 'home_3_t'), desc: getText(lang, 'home_3_d'), img: "https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg?auto=compress&cs=tinysrgb&w=600" }, 
                 { title: getText(lang, 'home_4_t'), desc: getText(lang, 'home_4_d'), img: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600" },
             ];
 
@@ -1576,10 +1573,8 @@
                     <div className="flex-1 overflow-y-auto p-4 flex flex-col pb-32">
                          {items.map((item, idx) => (
                              <div key={idx} className="mb-6">
-                                 {/* MODIFIED: Increased height to h-64, removed text overlay as requested */}
                                  <div className="w-full h-64 border border-[#222] rounded-xl overflow-hidden relative shrink-0">
                                      <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover" />
-                                     {/* Text block removed per request */}
                                  </div>
                              </div>
                          ))}
@@ -1598,20 +1593,34 @@
             const [showRecharge, setShowRecharge] = useState(false);
             const [rechargeData, setRechargeData] = useState(null);
             const [toast, setToast] = useState('');
+            
+            // NEW: Anti-Automation & Locking States
             const [workingId, setWorkingId] = useState(null); 
             const [submitId, setSubmitId] = useState(null);   
             const [showSuccess, setShowSuccess] = useState(false);
-            
-            // STRICT SEQUENTIAL PROCESSING FLAG
             const [isProcessing, setIsProcessing] = useState(false);
             
             // TASK CONFIGS FROM DB
             const [adminTaskConfigs, setAdminTaskConfigs] = useState({});
             
-            // Refs for Image Uploads
-            const amazonRef = useRef(null);
-            const alibabaRef = useRef(null);
-            const aliexpressRef = useRef(null);
+            // DAILY RESET LOGIC to prevent stale data automation
+            useEffect(() => {
+                const checkDailyReset = async () => {
+                   if (!userData || !userData.username) return;
+                   
+                   const todayStr = new Date().toDateString();
+                   const lastResetKey = `vip_last_reset_${userData.username}`;
+                   const storedDate = localStorage.getItem(lastResetKey);
+                   
+                   // If dates don't match, force a clean state for today
+                   if (storedDate !== todayStr) {
+                       localStorage.setItem(lastResetKey, todayStr);
+                       // Optional: Force user count to 0 if it's a new day and you want daily reset
+                       // db.ref(`users/${userData.username}`).update({ completedCount: 0 });
+                   }
+                };
+                checkDailyReset();
+            }, [userData]);
 
             // Listen for Admin Configs
             useEffect(() => {
@@ -1635,6 +1644,14 @@
                     });
                 }
             }, [userData.username]);
+            
+            // SAFETY: Clean LocalStorage on Mount to prevent "Virus" or Heavy Load
+            useEffect(() => {
+                try {
+                    const chat = localStorage.getItem('vip_chat_v3');
+                    if(chat && chat.length > 50000) localStorage.removeItem('vip_chat_v3');
+                } catch(e) {}
+            }, []);
 
             const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
             const getOrderTime = () => {
@@ -1647,11 +1664,11 @@
                 const s = String(now.getSeconds()).padStart(2, '0');
                 return `${y}:${m}:${d}:${h}:${min}:${s}`;
             };
-            const getRandomPrice = (min, max) => (Math.random() * (max - min) + min).toFixed(2);
-            const getRandomMultiplier = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
-
+            
+            // REPLACED Math.random with SEEDED random to keep tasks stable
             const generateAndSaveTasks = () => {
                 const tasks = [];
+                // Use default if products not loaded yet
                 const allProducts = [...DEFAULT_PRODUCTS_DATA['Amazon'], ...DEFAULT_PRODUCTS_DATA['Alibaba'], ...DEFAULT_PRODUCTS_DATA['AliExpress']];
                 
                 for(let i=0; i<25; i++) {
@@ -1662,13 +1679,13 @@
                     if (i >= 16) platform = 'AliExpress'; 
 
                     const adminConf = adminTaskConfigs[taskId];
+                    // Deterministic product selection based on ID, so it doesn't shuffle on reload
                     let defaultImgs = DEFAULT_PRODUCTS_DATA[platform] || DEFAULT_PRODUCTS_DATA['Amazon'];
                     let prodInfo = defaultImgs[i % defaultImgs.length];
                     
                     let rawBasePrice = 10;
                     let multiplierVal = 1;
                     let isComboTask = false;
-                    // NEW: isDemo Flag
                     let isDemo = false;
                     
                     let customTitle = prodInfo.n;
@@ -1676,10 +1693,9 @@
                     let comboSubItems = [];
 
                     if (adminConf) {
-                        isDemo = false; // Admin created this task
+                        isDemo = false; 
                         if(adminConf.title) customTitle = adminConf.title;
                         if(adminConf.img) customImg = adminConf.img;
-                        // MODIFIED: Use unitPrice for display disguised price, fall back to normal price if missing
                         if(adminConf.unitPrice) rawBasePrice = parseFloat(adminConf.unitPrice);
                         else if(adminConf.price) rawBasePrice = parseFloat(adminConf.price);
                         
@@ -1694,17 +1710,17 @@
                             }));
                         }
                     } else {
-                         // Default / Random Task
-                         isDemo = true; // Mark as Demo
+                         // Default / Random Task -> NOW SEEDED DETERMINISTIC
+                         isDemo = true; 
                          let priceMin = 5, priceMax = 10;
                          let multiMin = 1, multiMax = 5;
                          if (i >= 8) { priceMin = 10; priceMax = 20; multiMin = 2; multiMax = 8; }
                          if (i >= 16) { priceMin = 20; priceMax = 40; multiMin = 3; multiMax = 10; }
                          
-                         rawBasePrice = getRandomPrice(priceMin, priceMax);
-                         multiplierVal = getRandomMultiplier(multiMin, multiMax);
+                         // Use seeded functions instead of Math.random()
+                         rawBasePrice = getSeededPrice(taskId, priceMin, priceMax);
+                         multiplierVal = getSeededMultiplier(taskId, multiMin, multiMax);
                          
-                         // MODIFIED: REMOVED RANDOM COMBOS. Strictly false unless Admin sets it.
                          isComboTask = false; 
                     }
                     
@@ -1713,15 +1729,12 @@
                     const commRate = 0.625; 
                     let expertIncome;
 
-                    // MODIFIED: COMBO LOGIC - Disguise & Real Reveal
                     if (isComboTask) {
-                        // Calculate Total Price based on Sub-items (Unit * Multiplier)
                         let totalCalculatedPrice = 0;
                         let finalComboSubItems = [];
 
                         if(adminConf && adminConf.comboDetails && Array.isArray(adminConf.comboDetails)) {
                              finalComboSubItems = adminConf.comboDetails.map(item => {
-                                 // Admin might send fields: unitPrice/price, multiplier/gun, title, img
                                  const uPrice = parseFloat(item.unitPrice || item.price || 0);
                                  const qty = parseFloat(item.multiplier || item.gun || 1);
                                  const itemTotal = uPrice * qty;
@@ -1732,12 +1745,10 @@
                                      i: item.img || "https://placehold.co/100",
                                      unitPrice: uPrice.toFixed(2),
                                      multiplier: qty,
-                                     price: itemTotal.toFixed(2) // Display Total for this item row
+                                     price: itemTotal.toFixed(2) 
                                  };
                              });
                         } else {
-                             // Fallback Logic (if no details from admin but isCombo is true)
-                             // Generate 4 items that sum up to a target price
                              const target = adminConf && adminConf.price ? parseFloat(adminConf.price) : 5000.00;
                              let currentSum = 0;
                              const platformDefaults = DEFAULT_PRODUCTS_DATA[platform] || DEFAULT_PRODUCTS_DATA['Amazon'];
@@ -1745,15 +1756,13 @@
                              for(let k=0; k<4; k++) {
                                  const pItem = platformDefaults[(i+k) % platformDefaults.length];
                                  let itemPrice = 0;
-                                 // Distribution logic
                                  if(k === 3) itemPrice = target - currentSum;
                                  else if (k === 0) itemPrice = (target / 4) * 0.8;
                                  else itemPrice = (target - currentSum - (target/4)) / (3-k); 
 
                                  if(itemPrice <= 0) itemPrice = 100;
                                  
-                                 // Final Adjustment
-                                 if(k === 3) itemPrice = target - currentSum; // ensure exact match on last
+                                 if(k === 3) itemPrice = target - currentSum; 
                                  else currentSum += itemPrice;
 
                                  finalComboSubItems.push({
@@ -1767,41 +1776,33 @@
                              totalCalculatedPrice = target;
                         }
 
-                        // Set Real Values based on SUM
                         const totalTargetPrice = totalCalculatedPrice;
-                        // 50% Commission rule as requested
                         const totalComm = totalTargetPrice * 0.50; 
                         const totalIncome = totalTargetPrice + totalComm;
 
-                        // DISGUISE (Single Card View) - Use First Item
                         if(finalComboSubItems.length > 0) {
                             const first = finalComboSubItems[0];
                             customTitle = first.n;
                             customImg = first.i;
-                            finalPrice = first.price; // Use the total price of the first item row
-                            
-                            // Disguise Commission (Proportional or just 50% of first item for consistency)
+                            finalPrice = first.price; 
                             comm = (parseFloat(finalPrice) * 0.50).toFixed(2);
                             expertIncome = (parseFloat(finalPrice) + parseFloat(comm)).toFixed(2);
                         }
 
-                        // PUSH TASK
                         tasks.push({ 
                             n: customTitle,
                             i: customImg,
                             id: taskId,
                             platform,
                             isCombo: true,
-                            isDemo, // ADD FLAG
+                            isDemo,
                             
-                            // DISGUISE VALUES (Shown on List)
                             basePrice: (parseFloat(finalPrice) / multiplierVal).toFixed(2), 
                             price: finalPrice, 
                             comm: comm, 
                             multiplier: 1, 
                             expertIncome: expertIncome,
                             
-                            // REAL VALUES (For Logic & Modal)
                             realPrice: totalTargetPrice.toFixed(2),
                             realComm: totalComm.toFixed(2),
                             realIncome: totalIncome.toFixed(2),
@@ -1811,8 +1812,6 @@
                         });
 
                     } else {
-                        // Normal Single Calculation (Display Price x Multiplier)
-                        // If Admin sets Price explicitly, use it. Otherwise calc.
                         if (adminConf && adminConf.price) {
                              finalPrice = parseFloat(adminConf.price).toFixed(2);
                         } else {
@@ -1833,7 +1832,7 @@
                             id: taskId,
                             platform,
                             isCombo: false,
-                            isDemo, // ADD FLAG
+                            isDemo, 
                             basePrice: rawBasePrice, 
                             price: finalPrice,       
                             comm, 
@@ -1855,32 +1854,30 @@
             };
 
             const handleCardClick = (index) => {
-                // STRICT ANTI-DOUBLE CLICK & SEQUENTIAL LOGIC
+                // --- STRICT MANUAL LOGIC ---
+                // Only allow click if index matches completedCount
+                // This prevents automatic scrolling or double clicking
                 if(isProcessing) return;
 
-                // SEQUENTIAL LOGIC ENFORCEMENT
+                // STRICT SEQUENTIAL LOGIC ENFORCEMENT
                 if (index !== completedCount) {
-                    if (index > completedCount) showToast(`⚠️ Please wait for system allocation. Order ${completedCount + 1} is next.`);
+                    if (index > completedCount) showToast(`⚠️ Locked: Finish Order ${completedCount + 1} first.`);
                     else if (index < completedCount) showToast("✅ Already completed.");
                     return;
                 }
 
                 const task = taskList[index];
                 
-                // --- NEW: BLOCK DEMO TASKS ---
-                // If it's a generated demo task (no admin config), block it.
                 if (task.isDemo) {
                     showToast("⏳ Please wait for merchant allocation...");
                     return;
                 }
                 
-                // For logic check, use REAL price if combo, else standard price
                 const cost = parseFloat(task.isCombo ? task.realPrice : task.price);
                 const currentBal = parseFloat(userBalance);
                 
                 if (currentBal < cost) {
                     const needed = (cost - currentBal).toFixed(2);
-                    // Show real numbers in recharge modal
                     setRechargeData({ 
                         price: task.isCombo ? task.realPrice : task.price, 
                         comm: task.isCombo ? task.realComm : task.comm, 
@@ -1896,29 +1893,35 @@
                     setShowCombo(true); 
                 } else {
                     setWorkingId(index);
-                    setTimeout(() => { setWorkingId(null); setSubmitId(index); }, 2000); 
+                    // No automatic submission. User must wait then click submit.
+                    setTimeout(() => { 
+                        setWorkingId(null); 
+                        setSubmitId(index); 
+                    }, 2000); 
                 }
             };
 
             const submitTask = () => {
-                if (submitId === null || isProcessing) return; // Prevent double click
-                setIsProcessing(true); // Lock
+                // Ensure manual submission only
+                if (submitId === null || isProcessing || submitId !== completedCount) return; 
+                
+                setIsProcessing(true); 
 
                 const task = taskList[submitId];
                 processPayment(task);
+                
                 setSubmitId(null);
                 showToast("✅ " + getText(lang, 'task_complete'));
                 
-                // Release lock after small delay to prevent rapid clicking
-                setTimeout(() => setIsProcessing(false), 1000);
+                // Delay clearing processing flag to prevent double taps
+                setTimeout(() => setIsProcessing(false), 2000);
             };
 
             const submitCombo = () => {
-                if(isProcessing) return; // Lock combo submit too
+                if(isProcessing) return; 
                 setIsProcessing(true);
 
                 const task = taskList[completedCount];
-                // Use REAL price
                 const cost = parseFloat(task.realPrice);
                 const currentBal = parseFloat(userBalance);
                 
@@ -1936,6 +1939,7 @@
                     return;
                 }
                 processPayment(task);
+                
                 setShowCombo(false);
                 setShowSuccess(true);
                 setTimeout(() => { setShowSuccess(false); setIsProcessing(false); }, 2500);
@@ -1950,6 +1954,9 @@
                 const newBal = (currentBal - cost + income).toFixed(2);
                 
                 const newCount = completedCount + 1;
+                
+                if(newCount > 25) return;
+
                 setCompletedCount(newCount);
                 setUserBalance(newBal);
 
@@ -1986,8 +1993,6 @@
                 showToast("✅ New Round Started!");
             };
 
-            // MODIFIED: Loop allowed immediately (set reset time check to 0 or effectively true)
-            // User requested: "Start again... no hidden"
             const canReset = true; 
 
             if (subView === 'menu') {
@@ -1997,20 +2002,17 @@
                             <div className="flex justify-between items-center mb-3">
                                 <h2 className="text-2xl font-bold text-white">VIP {getText(lang, 'menu')}</h2>
                                 <div className="bg-black px-3 py-1 rounded-full border border-[#333] text-xs text-gray-400">
-                                    {/* FIXED BALANCE FORMAT: toFixed(2) */}
                                     Bal: USDT$ {parseFloat(userBalance).toFixed(2)}
                                 </div>
                             </div>
                             <div className="flex justify-between gap-2">
                                 {['All', 'VIP1', 'VIP2', 'VIP3'].map(btn => (
-                                    // FIXED: Changed py-1 back to py-3 to make buttons thicker/mota as requested
                                     <button key={btn} onClick={() => setActiveFilter(btn)} className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${activeFilter === btn ? 'bg-red-600 text-white shadow-lg shadow-red-900/50' : 'bg-[#222] text-gray-400 hover:bg-[#333]'}`}>{btn}</button>
                                 ))}
                             </div>
                         </div>
                         
                         <div className="flex-1 overflow-y-auto px-4 space-y-2 pt-2 pb-40">
-                            {/* FIXED LOGO LOGIC (ONE-TIME SETUP) - CARDS NOW WHITE AS REQUESTED */}
                             {(activeFilter === 'All' || activeFilter === 'VIP1') && (
                                 <div onClick={(e) => { e.stopPropagation(); startPlatform('Amazon'); }} className="bg-white rounded-xl p-4 min-h-[110px] flex items-center shadow-sm border border-yellow-100 active:scale-98 transition-transform cursor-pointer relative overflow-hidden mt-2">
                                     <div className="absolute top-0 right-0 bg-yellow-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-bl-lg rounded-tr-lg z-10">VIP 1</div>
@@ -2033,7 +2035,7 @@
                                         </div>
                                         <p className="text-xs text-yellow-600 font-bold">{getText(lang, 'commission')} <span className="text-lg font-black text-red-600 ml-1">4%</span></p>
                                     </div>
-                                    {completedCount >= 8 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-green-500 font-bold border border-green-500 px-3 py-1 rounded rotate-[-10deg]">{getText(lang, 'completed_stamp')}</span></div>}
+                                    {completedCount >= 8 && <div className="absolute top-2 right-2"><CheckCircle size={24} className="text-green-600"/></div>}
                                 </div>
                             )}
 
@@ -2059,7 +2061,7 @@
                                         </div>
                                         <p className="text-xs text-yellow-600 font-bold">{getText(lang, 'commission')} <span className="text-lg font-black text-red-600 ml-1">8%</span></p>
                                     </div>
-                                    {completedCount >= 16 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-green-500 font-bold border border-green-500 px-3 py-1 rounded rotate-[-10deg]">{getText(lang, 'completed_stamp')}</span></div>}
+                                    {completedCount >= 16 && <div className="absolute top-2 right-2"><CheckCircle size={24} className="text-green-600"/></div>}
                                 </div>
                             )}
 
@@ -2085,7 +2087,7 @@
                                         </div>
                                         <p className="text-xs text-yellow-600 font-bold">{getText(lang, 'commission')} <span className="text-lg font-black text-red-600 ml-1">12%</span></p>
                                     </div>
-                                    {completedCount >= 25 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-green-500 font-bold border border-green-500 px-3 py-1 rounded rotate-[-10deg]">{getText(lang, 'completed_stamp')}</span></div>}
+                                    {completedCount >= 25 && <div className="absolute top-2 right-2"><CheckCircle size={24} className="text-green-600"/></div>}
                                 </div>
                             )}
                         </div>
@@ -2125,7 +2127,6 @@
                          <button onClick={() => setSubView('menu')} className="bg-[#dc2626] text-white px-3 py-1 rounded-lg text-xs font-bold shadow-lg flex items-center gap-1 active:scale-95"><ChevronLeft size={14}/> Back</button>
                          <div className="text-right">
                              <h3 className="text-lg font-bold text-white">{currentPlatform} <span className="text-xs text-gray-300 font-normal">({Math.min(completedCount - startIndex, endIndex - startIndex)}/{endIndex - startIndex})</span></h3>
-                             {/* REMOVED 'Bal' Text, just showing USDT */}
                              <p className="text-xs text-[#dc2626] font-bold">USDT$ {Number(userBalance).toFixed(2)}</p>
                          </div>
                      </div>
@@ -2135,14 +2136,17 @@
                         {visibleTasks.map((task, i) => {
                             const globalIndex = task.id - 1; 
                             const isCompleted = globalIndex < completedCount;
-                            // UNLOCKED VISUALLY: We removed the strict 'isLocked' logic for styling
+                            
                             const isWorking = workingId === globalIndex;
                             const isSubmitReady = submitId === globalIndex;
                             const isNext = globalIndex === completedCount;
                             
+                            // STRICT LOCK: If not next task, disable interaction visually
+                            const isLocked = !isCompleted && !isNext;
+                            
                             return (
                                 <div key={globalIndex} onClick={() => !isCompleted && !isWorking && !isSubmitReady && handleCardClick(globalIndex)} 
-                                     className={`mb-3 bg-white rounded-xl p-3 shadow-lg border border-gray-200 relative overflow-hidden transition-all duration-300 ${isNext ? 'ring-2 ring-red-500 scale-[1.01]' : ''}`}>
+                                     className={`mb-3 bg-white rounded-xl p-3 shadow-lg border border-gray-200 relative overflow-hidden transition-all duration-300 ${isNext ? 'ring-2 ring-red-500 scale-[1.01]' : ''} ${isLocked ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
                                     
                                     <div className="flex gap-3 mb-2 border-b border-gray-100 pb-2">
                                         <div className="w-20 h-20 bg-gray-50 rounded-lg p-2 flex-shrink-0 border border-gray-200">
@@ -2163,18 +2167,17 @@
                                         </div>
                                         <div className="flex justify-between items-center text-[9px]">
                                             <span className="text-gray-500 font-medium">Product order</span>
-                                            {/* VISUAL DISGUISE: Shows task.price (Small for Combo, Normal for Single) */}
                                             <span className="font-mono text-gray-800 font-bold">{task.price}USDT</span>
                                         </div>
                                         <div className="flex justify-between items-center text-[9px]">
                                             <span className="text-gray-500 font-medium">Commission.</span>
-                                            {/* VISUAL DISGUISE: Shows task.comm (Small for Combo, Normal for Single) */}
                                             <span className="font-mono text-gray-800 font-bold">{task.comm}USDT</span>
                                         </div>
-                                        <div className="flex justify-between items-center text-[9px]">
-                                            <span className="text-gray-500 font-medium">Expert income.</span>
-                                            {/* VISUAL DISGUISE: Shows task.expertIncome (Small for Combo, Normal for Single) */}
-                                            <span className="font-mono text-gray-800 font-bold">{task.expertIncome}USDT</span>
+                                        
+                                        {/* MODIFIED EXPERT INCOME STYLING: Pink, Large, One Line */}
+                                        <div className="flex justify-between items-center bg-pink-100 p-2 rounded-lg border border-pink-200 mt-1 shadow-sm">
+                                            <span className="text-pink-600 font-extrabold text-sm uppercase">Expert Income</span>
+                                            <span className="font-mono text-pink-600 font-extrabold text-sm">{task.expertIncome} USDT</span>
                                         </div>
                                     </div>
                                     
@@ -2187,7 +2190,6 @@
 
                                     {isSubmitReady && (
                                         <div className="absolute inset-0 bg-white/90 flex items-center justify-center z-20 animate-fade-in">
-                                            {/* BUTTON THINNER: py-1 instead of thicker padding */}
                                             <button onClick={(e) => { e.stopPropagation(); submitTask(); }} className="bg-[#dc2626] text-white px-8 py-1.5 rounded-full font-bold text-sm shadow-lg animate-bounce">
                                                 {getText(lang, 'submit')}
                                             </button>
@@ -2196,7 +2198,9 @@
 
                                     {isCompleted && (
                                         <div className="absolute top-2 right-2">
-                                            <span className="text-green-600 text-xs font-bold border border-green-600 px-2 py-1 rounded">✓ {getText(lang, 'completed_stamp')}</span>
+                                            <div className="bg-green-100 text-green-600 rounded-full p-1 border border-green-200">
+                                                <Check size={16} />
+                                            </div>
                                         </div>
                                     )}
 
@@ -2208,10 +2212,9 @@
                             {completedCount >= 25 && canReset ? (
                                 <button onClick={handleResetTasks} className="w-full py-3 rounded-xl font-black text-xl uppercase tracking-widest transition-all duration-300 transform bg-green-600 text-white shadow-lg shadow-green-900/50 hover:scale-[1.02] active:scale-95 cursor-pointer">START NEW ROUND</button>
                             ) : (
-                                <button onClick={handlePlatformSubmit} className={`w-full py-3 rounded-xl font-black text-xl uppercase tracking-widest transition-all duration-300 transform bg-[#dc2626] text-white shadow-lg shadow-red-900/50 hover:scale-[1.02] active:scale-95 cursor-pointer`}>{completedCount >= 25 ? `RESET IN 12h` : getText(lang, 'submit_orders')}</button>
+                                <button disabled={completedCount < 25} onClick={handlePlatformSubmit} className={`w-full py-3 rounded-xl font-black text-xl uppercase tracking-widest transition-all duration-300 transform ${completedCount < 25 ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#dc2626] hover:scale-[1.02] cursor-pointer'} text-white shadow-lg shadow-red-900/50`}>{completedCount >= 25 ? getText(lang, 'submit_orders') : 'Complete All 25 Tasks'}</button>
                             )}
-                            {!isPlatformComplete && <p className="text-center text-gray-500 text-xs mt-2">Complete all tasks to submit.</p>}
-                            {completedCount >= 25 && !canReset && <p className="text-center text-orange-500 text-xs mt-2 font-bold animate-pulse">Wait 12 hours to start new round.</p>}
+                            {!isPlatformComplete && <p className="text-center text-gray-500 text-xs mt-2">Finish tasks one by one.</p>}
                         </div>
                      </div>
 
@@ -2226,7 +2229,7 @@
                                     <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
                                         <div className="flex justify-between text-xs text-gray-500"><span>Product Price:</span><span className="font-bold text-black">{rechargeData.price} USDT</span></div>
                                         <div className="flex justify-between text-xs text-gray-500"><span>Commission (50%):</span><span className="font-bold text-green-600">{rechargeData.comm} USDT</span></div>
-                                        <div className="flex justify-between text-sm bg-orange-50 p-2 rounded"><span className="font-bold text-orange-500">Expert Income:</span><span className="font-black text-orange-600">{rechargeData.income} USDT</span></div>
+                                        <div className="flex justify-between text-sm bg-orange-50 p-2 rounded"><span className="font-bold text-orange-500">Expert Income:</span><span className="font-black text-gold text-lg">{rechargeData.income} USDT</span></div>
                                         <div className="text-center mt-2 border-t pt-2 border-gray-200"><p className="text-gray-500 text-[10px] uppercase tracking-widest mb-1">Recharge Amount</p><p className="text-3xl font-black text-[#dc2626]">{rechargeData.needed} USDT</p></div>
                                     </div>
                                     <button onClick={() => {setShowRecharge(false); onNavigate('deposit');}} className="w-full py-2.5 bg-[#dc2626] rounded-xl font-bold text-white shadow-lg active:scale-95">Recharge Now</button>
@@ -2236,8 +2239,6 @@
                     )}
 
                     {showCombo && (
-                        // FIXED: Removed any potential hiding logic. Fixed Z-Index. Removed close button.
-                        // POWERFUL RGB ANIMATION + CONFETTI
                         <div className="combo-modal-overlay rgb-active">
                             <div className="combo-modal-content animate-pop-up relative overflow-hidden animate-rgb-power">
                                 <div className="absolute inset-0 bg-white z-0"></div>
@@ -2286,7 +2287,7 @@
                                         </div>
                                         <div className="flex justify-between items-center text-sm bg-white p-2 rounded-lg mt-2 border border-yellow-200 shadow-sm">
                                             <span className="text-black font-bold">Expert Income</span>
-                                            <span className="text-orange-500 font-black text-lg">{taskList[completedCount].realIncome}USDT</span>
+                                            <span className="text-gold font-black text-lg text-stretch">{taskList[completedCount].realIncome}USDT</span>
                                         </div>
                                     </div>
 
@@ -2571,15 +2572,18 @@
                         reader.onloadend = () => {
                             const newImages = { ...customImages, [key]: reader.result };
                             setCustomImages(newImages);
-                            localStorage.setItem('vip_custom_logos_final', JSON.stringify(newImages));
+                            try {
+                                localStorage.setItem('vip_custom_logos_final', JSON.stringify(newImages));
+                            } catch(e) { console.warn("Quota exceeded"); }
                         };
                         reader.readAsDataURL(file);
                     }
                 } else {
-                    // If it's already a base64 string
                     const newImages = { ...customImages, [key]: file };
                     setCustomImages(newImages);
-                    localStorage.setItem('vip_custom_logos_final', JSON.stringify(newImages));
+                    try {
+                        localStorage.setItem('vip_custom_logos_final', JSON.stringify(newImages));
+                    } catch(e) { console.warn("Quota exceeded"); }
                 }
             };
 
