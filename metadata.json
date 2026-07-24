@@ -1,0 +1,6 @@
+{
+  "name": "VIP System Admin",
+  "description": "VIP System Admin dashboard and task manager",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
